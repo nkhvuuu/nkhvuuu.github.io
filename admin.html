@@ -24,6 +24,9 @@ textarea{min-height:76px}label{display:block;font-size:13px;color:var(--mute);ma
 .msg{padding:10px 14px;border-radius:8px;margin:10px 0;background:#fff;border:1px solid var(--line)}.msg.err{border-color:var(--red);color:var(--red)}
 .check{display:flex;gap:10px;align-items:center;margin-top:14px;font-size:16px;color:var(--ink)}.check input{width:22px;height:22px}
 .bar{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}.hide{display:none!important}
+.row input.sel{width:22px;height:22px;flex:none;padding:0}.row.on{border-color:var(--red);background:#fff7f7}
+.selbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 10px}.selbar .check{margin:0}
+.bulkbar{position:sticky;bottom:0;z-index:4;background:#fff;border:1px solid var(--red);border-radius:12px;padding:10px 14px;margin:10px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 -2px 12px #0001}.bulkbar b{flex:1;min-width:120px}
 </style></head><body>
 <header><h1>DODENDI <span id="hSub" style="font-weight:400;color:var(--mute)">admin</span></h1><button id="backup">Sao lưu</button><button id="out" class="hide"></button></header>
 <main id="app"></main>
@@ -38,7 +41,8 @@ var T = {
   vi: { admin: "quản lý", email: "Email", pass: "Mật khẩu", login: "Đăng nhập", logout: "Đăng xuất", bad: "Sai email hoặc mật khẩu.", notAdmin: "Tài khoản này chưa được sửa shop. Nhờ Vu thêm email của bạn.",
     products: "Sản phẩm", posts: "Bài Instagram", add: "Thêm sản phẩm", empty: "Chưa có gì.", sold: "Đã bán", edit: "Sửa", save: "Lưu", cancel: "Hủy", del: "Xóa", sure: "Xóa hẳn mục này?",
     photos: "Ảnh (ảnh đầu là ảnh bìa, tối đa 10)", addPhoto: "Thêm ảnh", name: "Tên", brand: "Hãng", cat: "Loại", kind: "Kiểu (không bắt buộc)", price: "Giá (VND, để trống = hỏi giá)", size: "Size (giày: 37, 37.5, 38)", grade: "Tình trạng (từ 1 đến 10)", isSold: "Đã bán", noteEn: "Mô tả tiếng Anh", noteVi: "Mô tả tiếng Việt",
-    needName: "Bạn nhập tên nhé.", saved: "Đã lưu.", saving: "Đang lưu…", line: "Hàng chạy nào", lineVw: "Vivienne Westwood", lineAs: "Anna Sui", link: "Link bài Instagram", caption: "Chú thích (không bắt buộc)", date: "Ngày (không bắt buộc)", addPost: "Thêm bài", cover: "bìa",
+    needName: "Bạn nhập tên nhé.", saved: "Đã lưu.", saving: "Đang lưu…", line: "Hàng chạy nào", lineVw: "Vivienne Westwood", lineAs: "Anna Sui", lineNone: "Chưa chọn (ẩn)", link: "Link bài Instagram", caption: "Chú thích (không bắt buộc)", date: "Ngày (không bắt buộc)", addPost: "Thêm bài", cover: "bìa",
+    selAll: "Chọn tất cả", chosen: "Đã chọn {n}", clear: "Bỏ chọn", bulkEdit: "Sửa đã chọn", bulkDel: "Xóa đã chọn", bulkSure: "Xóa hẳn {n} mục đã chọn? Không thể hoàn tác (bạn có thể bấm Sao lưu trước).", bulkTitle: "Sửa {n} mục đã chọn", bulkHint: "Chỉ những ô bạn chọn hoặc nhập mới được đổi. Ô để trống thì giữ nguyên.", keep: "— giữ nguyên —", status: "Còn hàng / đã bán", inStock: "Còn hàng", apply: "Áp dụng", priceNew: "Giá mới (VND)", sizeNew: "Size mới", bulkDone: "Đã sửa {n} mục.", bulkDeleted: "Đã xóa {n} mục.",
     imp: "Nhập 47 sản phẩm từ website", impHelp: "Làm một lần: chép các sản phẩm và bài đang có trên website vào shop này, kèm ảnh.", impDone: "Xong: đã nhập {p} sản phẩm và {f} bài.", impNone: "Không đọc được sản phẩm của website.", uploading: "Đang tải ảnh…", fail: "Có lỗi: ", askPrice: "Hỏi giá" }
 };
 function t(k, v) { var s = T.vi[k] != null ? T.vi[k] : k; if (v) Object.keys(v).forEach(function (n) { s = s.replace("{" + n + "}", v[n]); }); return s; }
@@ -66,6 +70,9 @@ var rest = {
   list: function (table) { return api("/rest/v1/" + table + "?select=*&order=" + (table === "products" ? "updated_at.desc" : "id.desc")); },
   upsert: function (id, data) { return api("/rest/v1/products?on_conflict=id", { method: "POST", headers: { "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ id: id, data: data, updated_at: new Date().toISOString() }) }); },
   addPost: function (data) { return api("/rest/v1/posts", { method: "POST", headers: { "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify({ data: data }) }); },
+  bulkDel: function (table, ids) { return api("/rest/v1/" + table + "?id=in.(" + ids.map(function (i) { return '"' + String(i).replace(/"/g, "") + '"'; }).join(",") + ")", { method: "DELETE" }); },
+  bulkProducts: function (rows) { var now = new Date().toISOString(); return api("/rest/v1/products?on_conflict=id", { method: "POST", headers: { "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(rows.map(function (r) { return { id: r.id, data: r.data, updated_at: now }; })) }); },
+  setPost: function (id, data) { return api("/rest/v1/posts?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify({ data: data }) }); },
   del: function (table, id) { return api("/rest/v1/" + table + "?id=eq." + encodeURIComponent(id), { method: "DELETE" }); }
 };
 function uploadBlob(blob) {
@@ -87,7 +94,29 @@ function shrink(file) {
 }
 
 /* ---------- screens ---------- */
-var view = "products", st = { products: [], posts: [], draft: null, msg: "", err: false, busy: false };
+var view = "products", st = { products: [], posts: [], draft: null, msg: "", err: false, busy: false, sel: {}, bulk: false };
+function selIds() { return Object.keys(st.sel).filter(function (k) { return st.sel[k]; }); }
+function rowsOf() { return view === "products" ? st.products : st.posts; }
+function selBar(rows) {
+  if (!rows.length) return "";
+  var n = selIds().length;
+  return '<div class="selbar"><label class="check"><input type="checkbox" id="selall"' + (n && n === rows.length ? " checked" : "") + "> " + t("selAll") + "</label></div>";
+}
+function bulkBar() {
+  var n = selIds().length; if (!n || st.draft) return "";
+  return '<div class="bulkbar"><b>' + t("chosen", { n: n }) + '</b><button class="pri" data-a="bulkedit">' + t("bulkEdit") + '</button><button class="danger" data-a="bulkdel">' + t("bulkDel") + '</button><button data-a="selnone">' + t("clear") + "</button></div>";
+}
+function bulkForm() {
+  var n = selIds().length, keep = '<option value="">' + t("keep") + "</option>", f;
+  if (view === "products") {
+    f = '<label>' + t("status") + '</label><select name="sold">' + keep + '<option value="1">' + t("sold") + '</option><option value="0">' + t("inStock") + '</option></select>' +
+      '<div class="grid2"><div><label>' + t("grade") + '</label><select name="grade">' + opts(GRADES, "", t("keep")) + '</select></div><div><label>' + t("priceNew") + '</label><input name="price" inputmode="numeric"></div>' +
+      '<div><label>' + t("brand") + '</label><input name="brand"></div><div><label>' + t("sizeNew") + '</label><input name="size"></div></div>';
+  } else {
+    f = '<label>' + t("line") + '</label><select name="line">' + keep + '<option value="vw">' + t("lineVw") + '</option><option value="as">' + t("lineAs") + '</option><option value="none">' + t("lineNone") + '</option></select><label>' + t("date") + '</label><input name="date" type="date">';
+  }
+  return '<form class="card" id="bform"><b>' + t("bulkTitle", { n: n }) + '</b><p style="color:var(--mute);margin:6px 0 0">' + t("bulkHint") + '</p>' + f + '<div class="bar"><button class="pri"' + (st.busy ? " disabled" : "") + ">" + t("apply") + '</button><button type="button" data-a="bulkcancel">' + t("cancel") + "</button></div></form>";
+}
 function say(m, err) { st.msg = m; st.err = !!err; }
 function render() {
   $("#hSub").textContent = t("admin");
@@ -96,7 +125,8 @@ function render() {
   var h = '<div class="tabs"><button data-v="products" aria-pressed="' + (view === "products") + '">' + t("products") + '</button><button data-v="posts" aria-pressed="' + (view === "posts") + '">' + t("posts") + "</button></div>";
   if (st.msg) h += '<div class="msg' + (st.err ? " err" : "") + '">' + esc(st.msg) + "</div>";
   if (st.draft) h += view === "products" ? productForm() : postForm();
-  else h += view === "products" ? productList() : postList();
+  else if (st.bulk && selIds().length) h += bulkForm();
+  else h += (view === "products" ? productList() : postList()) + bulkBar();
   $("#app").innerHTML = h;
 }
 function renderLogin() {
@@ -105,11 +135,11 @@ function renderLogin() {
 }
 function fmtPrice(p) { return p && +p > 0 ? "₫" + Math.round(+p).toLocaleString("en-US") : t("askPrice"); }
 function productList() {
-  var h = '<div class="bar" style="margin-top:0"><button class="pri" data-a="new">+ ' + t("add") + "</button></div><p></p>";
+  var h = '<div class="bar" style="margin-top:0"><button class="pri" data-a="new">+ ' + t("add") + "</button></div><p></p>" + selBar(st.products);
   if (!st.products.length) h += '<div class="card"><p>' + t("empty") + '</p><p style="color:var(--mute)">' + t("impHelp") + '</p><button data-a="import">' + t("imp") + "</button></div>";
   st.products.forEach(function (r) {
     var p = r.data, im = p.img && p.img[0];
-    h += '<div class="row">' + (im ? '<img src="' + esc(im) + '" alt="">' : '<span class="noimg"></span>') + '<div class="t"><b>' + esc(p.name) + (p.sold ? '<span class="sold">' + t("sold") + "</span>" : "") + "</b><small>" + esc(p.brand || "") + " · " + fmtPrice(p.price) + (p.size ? " · " + esc(p.size) : "") + '</small></div><button data-a="sold" data-id="' + esc(r.id) + '">' + (p.sold ? "↩" : "✓ " + t("sold")) + '</button><button data-a="edit" data-id="' + esc(r.id) + '">' + t("edit") + "</button></div>";
+    h += '<div class="row' + (st.sel[r.id] ? " on" : "") + '"><input type="checkbox" class="sel" data-sel="' + esc(r.id) + '"' + (st.sel[r.id] ? " checked" : "") + ' aria-label="' + esc(p.name) + '">' + (im ? '<img src="' + esc(im) + '" alt="">' : '<span class="noimg"></span>') + '<div class="t"><b>' + esc(p.name) + (p.sold ? '<span class="sold">' + t("sold") + "</span>" : "") + "</b><small>" + esc(p.brand || "") + " · " + fmtPrice(p.price) + (p.size ? " · " + esc(p.size) : "") + '</small></div><button data-a="sold" data-id="' + esc(r.id) + '">' + (p.sold ? "↩" : "✓ " + t("sold")) + '</button><button data-a="edit" data-id="' + esc(r.id) + '">' + t("edit") + "</button></div>";
   });
   return h;
 }
@@ -130,17 +160,17 @@ function productForm() {
     '<div class="bar"><button class="pri"' + (st.busy ? " disabled" : "") + ">" + t("save") + '</button><button type="button" data-a="cancel">' + t("cancel") + "</button>" + (d.exists ? '<button type="button" class="danger" data-a="delete" style="margin-left:auto">' + t("del") + "</button>" : "") + "</div></form>";
 }
 function postList() {
-  var h = '<div class="bar" style="margin-top:0"><button class="pri" data-a="newpost">+ ' + t("addPost") + "</button></div><p></p>";
+  var h = '<div class="bar" style="margin-top:0"><button class="pri" data-a="newpost">+ ' + t("addPost") + "</button></div><p></p>" + selBar(st.posts);
   if (!st.posts.length) h += '<div class="card"><p>' + t("empty") + "</p></div>";
   st.posts.forEach(function (r) {
     var p = r.data;
-    h += '<div class="row">' + (p.imgs && p.imgs[0] ? '<img src="' + esc(p.imgs[0]) + '" alt="">' : '<span class="noimg"></span>') + '<div class="t"><b>' + esc((p.caption || p.url || "").split("\n")[0]) + "</b><small>" + (p.line === "as" ? t("lineAs") : t("lineVw")) + " · " + esc(p.date || "") + '</small></div><button class="danger" data-a="delpost" data-id="' + r.id + '">' + t("del") + "</button></div>";
+    h += '<div class="row' + (st.sel[r.id] ? " on" : "") + '"><input type="checkbox" class="sel" data-sel="' + r.id + '"' + (st.sel[r.id] ? " checked" : "") + '>' + (p.imgs && p.imgs[0] ? '<img src="' + esc(p.imgs[0]) + '" alt="">' : '<span class="noimg"></span>') + '<div class="t"><b>' + esc((p.caption || p.url || "").split("\n")[0]) + "</b><small>" + (p.line === "as" ? t("lineAs") : p.line === "vw" ? t("lineVw") : t("lineNone")) + " · " + esc(p.date || "") + '</small></div><button class="danger" data-a="delpost" data-id="' + r.id + '">' + t("del") + "</button></div>";
   });
   return h;
 }
 function postForm() {
   var d = st.draft;
-  return '<form class="card" id="qform">' + photoBox(d.imgs) + '<label>' + t("line") + '</label><select name="line"><option value="vw"' + (d.line === "vw" ? " selected" : "") + ">" + t("lineVw") + '</option><option value="as"' + (d.line === "as" ? " selected" : "") + ">" + t("lineAs") + "</option></select>" +
+  return '<form class="card" id="qform">' + photoBox(d.imgs) + '<label>' + t("line") + '</label><select name="line"><option value="vw"' + (d.line === "vw" ? " selected" : "") + ">" + t("lineVw") + '</option><option value="as"' + (d.line === "as" ? " selected" : "") + ">" + t("lineAs") + '</option><option value="none"' + (d.line !== "vw" && d.line !== "as" ? " selected" : "") + ">" + t("lineNone") + "</option></select>" +
     '<label>' + t("link") + '</label><input name="url" value="' + esc(d.url) + '" placeholder="https://www.instagram.com/p/…"><label>' + t("caption") + '</label><textarea name="caption">' + esc(d.caption) + '</textarea><label>' + t("date") + '</label><input name="date" type="date" value="' + esc(d.date) + '">' +
     '<div class="bar"><button class="pri"' + (st.busy ? " disabled" : "") + ">" + t("save") + '</button><button type="button" data-a="cancel">' + t("cancel") + "</button></div></form>";
 }
@@ -162,7 +192,7 @@ function checkAdmin() {
   return api("/rest/v1/rpc/is_admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }).then(function (ok) { if (ok !== true) throw new Error("not admin"); });
 }
 function load() {
-  return Promise.all([rest.list("products"), rest.list("posts")]).then(function (r) { st.products = r[0]; st.posts = r[1]; render(); });
+  return Promise.all([rest.list("products"), rest.list("posts")]).then(function (r) { st.products = r[0]; st.posts = r[1]; var keep = {}; rowsOf().forEach(function (x) { if (st.sel[x.id]) keep[x.id] = true; }); st.sel = keep; if (!selIds().length) st.bulk = false; render(); });
 }
 function guard(p) { st.busy = true; return p.then(function (x) { st.busy = false; return x; }, function (e) { st.busy = false; say(t("fail") + (e.message || e), true); render(); throw e; }); }
 
@@ -170,22 +200,31 @@ document.addEventListener("click", function (ev) {
   var b = ev.target.closest("button"); if (!b) return;
   if (b.id === "backup") return backup();
   if (b.id === "out") { saveSession(null); st.msg = ""; return render(); }
-  if (b.dataset.v) { view = b.dataset.v; st.draft = null; st.msg = ""; return render(); }
+  if (b.dataset.v) { view = b.dataset.v; st.draft = null; st.sel = {}; st.bulk = false; st.msg = ""; return render(); }
   var a = b.dataset.a; if (!a) return;
   var id = b.dataset.id, form = document.querySelector("#pform,#qform");
   if (form && st.draft) readForm(form, st.draft);
   if (a === "new") { st.draft = blankProduct(); st.msg = ""; return render(); }
-  if (a === "newpost") { st.draft = { imgs: [], line: "vw", url: "", caption: "", date: "" }; st.msg = ""; return render(); }
+  if (a === "newpost") { st.draft = { imgs: [], line: "none", url: "", caption: "", date: "" }; st.msg = ""; return render(); }
   if (a === "cancel") { st.draft = null; return render(); }
   if (a === "rmphoto") { (st.draft.img || st.draft.imgs).splice(+b.dataset.i, 1); return render(); }
   if (a === "edit") { var r = st.products.filter(function (x) { return x.id === id; })[0]; st.draft = Object.assign(blankProduct(), r.data, { id: id, exists: true, price: r.data.price || "", size: r.data.size || "", note_en: r.data.note_en || "", note_vi: r.data.note_vi || "" }); st.msg = ""; return render(); }
   if (a === "sold") { var q = st.products.filter(function (x) { return x.id === id; })[0]; var nd = Object.assign({}, q.data, { sold: !q.data.sold }); return guard(rest.upsert(id, nd)).then(load); }
   if (a === "delete") { if (!confirm(t("sure"))) return; return guard(rest.del("products", st.draft.id)).then(function () { st.draft = null; say(""); return load(); }); }
   if (a === "delpost") { if (!confirm(t("sure"))) return; return guard(rest.del("posts", id)).then(load); }
+  if (a === "selnone") { st.sel = {}; st.bulk = false; return render(); }
+  if (a === "bulkedit") { st.bulk = true; st.msg = ""; return render(); }
+  if (a === "bulkcancel") { st.bulk = false; return render(); }
+  if (a === "bulkdel") {
+    var ids = selIds(); if (!ids.length || !confirm(t("bulkSure", { n: ids.length }))) return;
+    return guard(rest.bulkDel(view, ids)).then(function () { st.sel = {}; st.bulk = false; say(t("bulkDeleted", { n: ids.length })); return load(); });
+  }
   if (a === "import") return doImport();
 });
 document.addEventListener("change", function (ev) {
   var el = ev.target;
+  if (el.id === "selall") { st.sel = {}; if (el.checked) rowsOf().forEach(function (x) { st.sel[x.id] = true; }); st.bulk = false; return render(); }
+  if (el.dataset && el.dataset.sel != null) { if (el.checked) st.sel[el.dataset.sel] = true; else delete st.sel[el.dataset.sel]; if (!selIds().length) st.bulk = false; return render(); }
   if (el.id === "files") {
     var d = st.draft, list = d.img || d.imgs, files = Array.prototype.slice.call(el.files, 0, MAXPHOTOS - list.length), f = document.querySelector("#pform,#qform");
     if (f) readForm(f, d);
@@ -202,6 +241,31 @@ document.addEventListener("submit", function (ev) {
     return tokenCall({ email: String(fd.get("e")).trim(), password: String(fd.get("p")) }, "password").then(function () { return checkAdmin().then(null, function (e) { saveSession(null); throw new Error("denied"); }); }).then(function () { return load(); }).then(null, function (e) {
       saveSession(null); st.msg = e.message === "denied" ? t("notAdmin") : t("bad"); render();
     });
+  }
+  if (f.id === "bform") {
+    var bf = new FormData(f), ids2 = selIds(), chosen = rowsOf().filter(function (x) { return st.sel[x.id]; }), job;
+    if (view === "products") {
+      var price = String(bf.get("price") || "").replace(/\D/g, ""), rows = chosen.map(function (r) {
+        var nd = Object.assign({}, r.data);
+        if (bf.get("sold") === "1") nd.sold = true; else if (bf.get("sold") === "0") nd.sold = false;
+        if (bf.get("grade")) nd.grade = String(bf.get("grade"));
+        if (price) nd.price = parseInt(price, 10);
+        if (String(bf.get("brand")).trim()) nd.brand = String(bf.get("brand")).trim();
+        if (String(bf.get("size")).trim()) nd.size = String(bf.get("size")).trim();
+        return { id: r.id, data: nd };
+      });
+      job = rest.bulkProducts(rows);
+    } else {
+      job = chosen.reduce(function (p, r) {
+        return p.then(function () {
+          var nd = Object.assign({}, r.data);
+          if (bf.get("line")) nd.line = String(bf.get("line"));
+          if (bf.get("date")) nd.date = String(bf.get("date"));
+          return rest.setPost(r.id, nd);
+        });
+      }, Promise.resolve());
+    }
+    return guard(job).then(function () { st.sel = {}; st.bulk = false; say(t("bulkDone", { n: ids2.length })); return load(); });
   }
   var d = st.draft; readForm(f, d);
   if (f.id === "pform") {
