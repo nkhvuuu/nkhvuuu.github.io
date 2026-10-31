@@ -776,10 +776,12 @@ var LINES = [{ id: "vw", name: "Vivienne Westwood" }, { id: "as", name: "Anna Su
 var FEED_MAX = 24;      /* tiles in the Instagram strip */
 var STRIP_MIN = 12;     /* the strip repeats its tiles up to this many so one lap is wider than any screen */
 var ARR_N = 8;          /* pieces in New Arrivals */
-var FEED_PHOTOS = 4;    /* photos per post */
+var FEED_PHOTOS = 10;    /* photos per post */
 var FEED_CAP_MAX = 2200; /* caption length, as on Instagram */
 var PH_N = 5;           /* placeholder tiles while there are no posts */
-var GRADES = ["10", "9.5", "9", "8.5", "8", "7"];
+var GRADES = ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6", "5.5", "5", "4.5", "4", "3.5", "3", "2.5", "2", "1.5", "1"];   /* any score from 1 to 10 in half steps */
+var TIERS = ["10", "9.5", "9", "8.5", "8", "7"];   /* the six described levels; a score takes the description of the highest level at or below it */
+function tierOf(g) { for (var i = 0; i < TIERS.length; i++) if (+g >= +TIERS[i]) return TIERS[i]; return "7"; }
 var RANK_TO_GRADE = { S: "10", A: "9.5", B: "8.5", C: "8" };
 var DELIVERY = ["pickup", "vn", "express", "intl"];
 var BANKS = [
@@ -1096,7 +1098,7 @@ function igURL(h) { return "https://www.instagram.com/" + encodeURIComponent(h) 
 var IG_POST = /^https:\/\/([a-z0-9-]+\.)*instagram\.com\/\S+$/i;
 function kindWord(k) { return k ? t("ty_" + k) : ""; }
 function fmtDec(g) { return lang === "vi" ? String(g).replace(".", ",") : String(g); }
-function gradeWord(g) { return t("g" + g); }
+function gradeWord(g) { return t("g" + tierOf(g)); }
 function condLine(p) { return gradeWord(p.grade) + " · " + t("gradeOut", { g: fmtDec(p.grade) }); }
 function sizeNums(p) {
   return (String(p.size || "").match(/\d{2}(?:[.,]5)?/g) || []).map(function (x) { return parseFloat(x.replace(",", ".")); }).filter(function (n) { return n >= 30 && n <= 48; });
@@ -1362,8 +1364,8 @@ function renderVisit() {
   renderStatus();
 }
 function renderGrades() {
-  $("#gradeTable").innerHTML = '<thead><tr><th scope="col">' + esc(t("gradeTh")) + '</th><th scope="col">' + esc(t("condTh")) + '</th><th scope="col">' + esc(t("meanTh")) + "</th></tr></thead><tbody>" + GRADES.map(function (g) {
-    return '<tr><td class="g">' + esc(fmtDec(g)) + '</td><th scope="row">' + esc(gradeWord(g)) + '</th><td class="d">' + esc(t("gd" + g)) + "</td></tr>";
+  $("#gradeTable").innerHTML = '<thead><tr><th scope="col">' + esc(t("gradeTh")) + '</th><th scope="col">' + esc(t("condTh")) + '</th><th scope="col">' + esc(t("meanTh")) + "</th></tr></thead><tbody>" + TIERS.map(function (g) {
+    return '<tr><td class="g">' + esc(g === "7" ? "≤ 7" : fmtDec(g)) + '</td><th scope="row">' + esc(gradeWord(g)) + '</th><td class="d">' + esc(t("gd" + g)) + "</td></tr>";
   }).join("") + "</tbody>";
 }
 function renderSizeGuide() {
@@ -1544,7 +1546,7 @@ function renderDetail(idx) {
         [t("detailCat"), t("cat_" + p.cat) + (p.kind ? " · " + kindWord(p.kind) : "")],
         [t("detailAvail"), p.sold ? t("sold") : t(p.type === "preorder" ? "badgePre" : "badgeStock")]
       ]) +
-      '<p class="hint">' + esc(gradeWord(p.grade) + ": " + t("gd" + p.grade)) + "</p>" +
+      '<p class="hint">' + esc(gradeWord(p.grade) + ": " + t("gd" + tierOf(p.grade))) + "</p>" +
       (note ? '<p class="note">' + esc(note) + "</p>" : "") +
       (p.type === "preorder" && !p.sold ? '<p class="notice">' + esc(t("depositLine")) + "</p>" : "") +
       (askPrice(p) && !p.sold ? '<p class="notice">' + esc(t("askPriceD")) + "</p>" : "") +

@@ -33,11 +33,11 @@ textarea{min-height:76px}label{display:block;font-size:13px;color:var(--mute);ma
 var CLOUD = { url: "https://vqtqtlcpbuybtufxcszx.supabase.co", key: "sb_publishable_2jynrHIPVunzJlK5nhlR3g_tYy2UWXs" };
 var CATS = ["shoes", "eyewear", "watches", "jewellery", "bags", "clothing", "accessories"];
 var KINDS = { shoes: ["heels", "flats", "mules", "boots", "maryjanes", "sneakers", "sandals"], eyewear: ["sunglasses", "frames"], watches: [], jewellery: ["necklaces", "earrings", "rings", "bracelets", "brooches"], bags: ["handbags", "crossbody", "wallets"], clothing: ["tops", "dresses", "skirts", "outerwear"], accessories: ["hair", "belts", "other"] };
-var GRADES = ["10", "9.5", "9", "8.5", "8", "7"];
+var GRADES = ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6", "5.5", "5", "4.5", "4", "3.5", "3", "2.5", "2", "1.5", "1"], MAXPHOTOS = 10;
 var T = {
   vi: { admin: "quản lý", email: "Email", pass: "Mật khẩu", login: "Đăng nhập", logout: "Đăng xuất", bad: "Sai email hoặc mật khẩu.", notAdmin: "Tài khoản này chưa được sửa shop. Nhờ Vu thêm email của bạn.",
     products: "Sản phẩm", posts: "Bài Instagram", add: "Thêm sản phẩm", empty: "Chưa có gì.", sold: "Đã bán", edit: "Sửa", save: "Lưu", cancel: "Hủy", del: "Xóa", sure: "Xóa hẳn mục này?",
-    photos: "Ảnh (ảnh đầu là ảnh bìa, tối đa 4)", addPhoto: "Thêm ảnh", name: "Tên", brand: "Hãng", cat: "Loại", kind: "Kiểu (không bắt buộc)", price: "Giá (VND, để trống = hỏi giá)", size: "Size (giày: 37, 37.5, 38)", grade: "Tình trạng (trên 10)", isSold: "Đã bán", noteEn: "Mô tả tiếng Anh", noteVi: "Mô tả tiếng Việt",
+    photos: "Ảnh (ảnh đầu là ảnh bìa, tối đa 10)", addPhoto: "Thêm ảnh", name: "Tên", brand: "Hãng", cat: "Loại", kind: "Kiểu (không bắt buộc)", price: "Giá (VND, để trống = hỏi giá)", size: "Size (giày: 37, 37.5, 38)", grade: "Tình trạng (từ 1 đến 10)", isSold: "Đã bán", noteEn: "Mô tả tiếng Anh", noteVi: "Mô tả tiếng Việt",
     needName: "Bạn nhập tên nhé.", saved: "Đã lưu.", saving: "Đang lưu…", line: "Hàng chạy nào", lineVw: "Vivienne Westwood", lineAs: "Anna Sui", link: "Link bài Instagram", caption: "Chú thích (không bắt buộc)", date: "Ngày (không bắt buộc)", addPost: "Thêm bài", cover: "bìa",
     imp: "Nhập 47 sản phẩm từ website", impHelp: "Làm một lần: chép các sản phẩm và bài đang có trên website vào shop này, kèm ảnh.", impDone: "Xong: đã nhập {p} sản phẩm và {f} bài.", impNone: "Không đọc được sản phẩm của website.", uploading: "Đang tải ảnh…", fail: "Có lỗi: ", askPrice: "Hỏi giá" }
 };
@@ -72,15 +72,15 @@ function uploadBlob(blob) {
   var type = /^image\/(jpeg|png|webp)$/.test(blob.type) ? blob.type : "image/jpeg", path = "p/" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + "." + type.slice(6).replace("jpeg", "jpg");
   return api("/storage/v1/object/photos/" + path, { method: "POST", headers: { "Content-Type": type, "x-upsert": "true" }, body: blob }).then(function () { return CLOUD.url + "/storage/v1/object/public/photos/" + path; });
 }
-/* photos are shrunk to 900 px and re-saved as JPEG, which also drops location data */
+/* photos are shrunk to 1600 px and re-saved as JPEG, which also drops location data */
 function shrink(file) {
   return new Promise(function (res, rej) {
     var url = URL.createObjectURL(file), im = new Image();
     im.onload = function () {
-      var k = Math.min(1, 900 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+      var k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement("canvas");
       c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
       c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
-      c.toBlob(function (b) { b ? res(b) : rej(new Error("photo")); }, "image/jpeg", 0.84);
+      c.toBlob(function (b) { b ? res(b) : rej(new Error("photo")); }, "image/jpeg", 0.86);
     };
     im.onerror = function () { rej(new Error("Couldn't read that photo (try a JPG or PNG).")); }; im.src = url;
   });
@@ -116,7 +116,7 @@ function productList() {
 function opts(list, cur, none) { return (none ? '<option value="">' + none + "</option>" : "") + list.map(function (x) { return '<option' + (x === cur ? " selected" : "") + ">" + esc(x) + "</option>"; }).join(""); }
 function photoBox(imgs) {
   return '<label>' + t("photos") + '</label><div class="photos">' + imgs.map(function (u, i) { return '<div class="ph"><img src="' + esc(u) + '" alt=""><button type="button" data-a="rmphoto" data-i="' + i + '">×</button>' + (i === 0 ? "<i>" + t("cover") + "</i>" : "") + "</div>"; }).join("") + "</div>" +
-    (imgs.length < 4 ? '<div class="bar" style="margin-top:8px"><label class="btn" style="margin:0;color:var(--ink);font-size:16px">' + t("addPhoto") + '<input type="file" id="files" accept="image/*" multiple style="display:none"></label></div>' : "");
+    (imgs.length < MAXPHOTOS ? '<div class="bar" style="margin-top:8px"><label class="btn" style="margin:0;color:var(--ink);font-size:16px">' + t("addPhoto") + '<input type="file" id="files" accept="image/*" multiple style="display:none"></label></div>' : "");
 }
 function productForm() {
   var d = st.draft;
@@ -187,7 +187,7 @@ document.addEventListener("click", function (ev) {
 document.addEventListener("change", function (ev) {
   var el = ev.target;
   if (el.id === "files") {
-    var d = st.draft, list = d.img || d.imgs, files = Array.prototype.slice.call(el.files, 0, 4 - list.length), f = document.querySelector("#pform,#qform");
+    var d = st.draft, list = d.img || d.imgs, files = Array.prototype.slice.call(el.files, 0, MAXPHOTOS - list.length), f = document.querySelector("#pform,#qform");
     if (f) readForm(f, d);
     say(t("uploading")); render();
     return guard(files.reduce(function (p, file) { return p.then(function () { return shrink(file).then(uploadBlob).then(function (u) { list.push(u); }); }); }, Promise.resolve())).then(function () { say(""); render(); });
