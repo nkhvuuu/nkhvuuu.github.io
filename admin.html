@@ -39,7 +39,7 @@ var KINDS = { shoes: ["heels", "flats", "mules", "boots", "maryjanes", "sneakers
 var GRADES = ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6", "5.5", "5", "4.5", "4", "3.5", "3", "2.5", "2", "1.5", "1"], MAXPHOTOS = 10;
 var T = {
   vi: { orders: "Đơn hàng", settings: "Cài đặt", noOrders: "Chưa có đơn nào.", ordersErr: "Chưa đọc được đơn hàng. Bạn chạy file SQL mới trong Supabase (hướng dẫn trong docs/admin-setup.md) rồi tải lại trang.",
-    oNew: "Mới", oDone: "Đã xử lý", oMarkDone: "Đánh dấu đã xử lý", oMarkNew: "Đánh dấu mới", oPay: "Thanh toán", oDel: "Giao hàng", oContact: "Liên hệ", oCopy: "Sao chép đơn", copied: "Đã sao chép.",
+    oNew: "Mới", oShipUsd: "Phí ship (USD)", oPayLink: "Sao chép link PayPal", oLinkErr: "Chưa có tài khoản paypal.me hoặc tỷ giá trong Cài đặt.", oLinkOk: "Đã sao chép link PayPal. Dán vào chat Instagram.", oDone: "Đã xử lý", oMarkDone: "Đánh dấu đã xử lý", oMarkNew: "Đánh dấu mới", oPay: "Thanh toán", oDel: "Giao hàng", oContact: "Liên hệ", oCopy: "Sao chép đơn", copied: "Đã sao chép.",
     sShop: "Thông tin shop", sPhone: "Số điện thoại", sZalo: "Số Zalo", sWa: "Số WhatsApp", sAddr: "Địa chỉ shop", sOpen: "Giờ mở cửa", sClose: "Giờ đóng cửa", sDays: "Ngày mở cửa", sIg: "Instagram (không gõ @)", sIgStock: "Đồ có sẵn", sIgOrder: "Order hộ", sIgRental: "Cho thuê",
     sPay: "Thanh toán trong nước", sBank: "Ngân hàng (VietQR)", sNoBank: "Chưa chọn", sAcct: "Số tài khoản", sAcctName: "Tên chủ tài khoản (không dấu)", sDeposit: "Tỷ lệ cọc order (%)",
     sIntl: "Thanh toán quốc tế", sPaypal: "Tài khoản PayPal (email hoặc link)", sZelle: "Zelle (email hoặc SĐT)", sRate: "Tỷ giá (số ₫ cho 1 USD)", sFee: "Phí cộng thêm vào giá để shop nhận đủ tiền", sPpPct: "PayPal: phí %", sPpFix: "PayPal: phí cố định (USD)", sZePct: "Zelle: phí %", sZeFix: "Zelle: phí cố định (USD)",
@@ -129,8 +129,8 @@ function ordersList() {
   if (!st.orders.length) return '<div class="card"><p>' + t("noOrders") + "</p></div>";
   return st.orders.map(function (o) {
     var d = o.data || {}, open = st.open === o.id, when = new Date(o.created_at).toLocaleString("vi-VN");
-    var h = '<div class="card" style="padding:12px"><button type="button" class="row" style="border:0;padding:0;margin:0;width:100%;text-align:left;background:transparent" data-a="oopen" data-id="' + o.id + '"><div class="t"><b>' + esc(d.name || "?") + (o.status === "new" ? ' <span class="sold">' + t("oNew") + "</span>" : "") + "</b><small>" + esc(when) + " · " + fmtVnd(d.due) + (d.usd ? " (US$" + d.usd + ")" : "") + " · " + esc(d.pay || "") + " · " + esc(d.delivery || "") + "</small></div></button>";
-    if (open) h += '<pre style="white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:8px;margin:10px 0">' + esc(d.text || "") + '</pre><div class="bar" style="margin-top:0"><button data-a="ocopy" data-id="' + o.id + '">' + t("oCopy") + '</button><button class="pri" data-a="ostatus" data-id="' + o.id + '">' + t(o.status === "new" ? "oMarkDone" : "oMarkNew") + '</button><button class="danger" data-a="odel" data-id="' + o.id + '">' + t("del") + "</button></div>";
+    var h = '<div class="card" style="padding:12px"><button type="button" class="row" style="border:0;padding:0;margin:0;width:100%;text-align:left;background:transparent" data-a="oopen" data-id="' + o.id + '"><div class="t"><b>' + esc(d.name || "?") + (d.ig ? " " + esc(d.ig) : "") + (o.status === "new" ? ' <span class="sold">' + t("oNew") + "</span>" : "") + "</b><small>" + esc(when) + " · " + fmtVnd(d.due) + (d.usd ? " (US$" + d.usd + ")" : "") + " · " + esc(d.pay || "") + " · " + esc(d.delivery || "") + "</small></div></button>";
+    if (open) h += '<pre style="white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:8px;margin:10px 0">' + esc(d.text || "") + '</pre><div class="bar" style="margin-top:0"><button data-a="ocopy" data-id="' + o.id + '">' + t("oCopy") + '</button>' + (d.pay === "paypal" ? '<input id="ship-' + o.id + '" placeholder="' + t("oShipUsd") + '" inputmode="decimal" style="width:150px"><button data-a="oplink" data-id="' + o.id + '">' + t("oPayLink") + "</button>" : "") + '<button class="pri" data-a="ostatus" data-id="' + o.id + '">' + t(o.status === "new" ? "oMarkDone" : "oMarkNew") + '</button><button class="danger" data-a="odel" data-id="' + o.id + '">' + t("del") + "</button></div>";
     return h + "</div>";
   }).join("");
 }
@@ -260,6 +260,13 @@ document.addEventListener("click", function (ev) {
   if (a === "delpost") { if (!confirm(t("sure"))) return; return guard(rest.del("posts", id)).then(load); }
   if (a === "oopen") { st.open = st.open === +id ? null : +id; return render(); }
   if (a === "ocopy") { var oc = st.orders.filter(function (x) { return x.id === +id; })[0]; if (navigator.clipboard && oc) navigator.clipboard.writeText(oc.data.text || ""); say(t("copied")); return render(); }
+  if (a === "oplink") {
+    var ol = st.orders.filter(function (x) { return x.id === +id; })[0], od = ol.data, acct = String(setting("pay.paypal")).replace(/^https?:\/\//i, ""), rate = +setting("usdRate"), fpct = +setting("fees.paypalPct") || 0, ffix = +setting("fees.paypalFixed") || 0;
+    var shipUsd = parseFloat(String((document.getElementById("ship-" + id) || {}).value || "0").replace(",", ".")) || 0;
+    if (!/^paypal\.me\/[\w.-]+$/i.test(acct) || !(rate > 0)) { say(t("oLinkErr"), true); return render(); }
+    var total = Math.ceil(((Math.ceil(od.due / rate * 100) / 100 + shipUsd + ffix) / (1 - fpct / 100)) * 100) / 100, link = "https://" + acct + "/" + total.toFixed(2) + "USD";
+    if (navigator.clipboard) navigator.clipboard.writeText("PayPal (US$" + total.toFixed(2) + "): " + link); say(t("oLinkOk") + " US$" + total.toFixed(2)); return render();
+  }
   if (a === "ostatus") { var os = st.orders.filter(function (x) { return x.id === +id; })[0]; return guard(api("/rest/v1/orders?id=eq." + id, { method: "PATCH", headers: { "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify({ status: os.status === "new" ? "done" : "new" }) })).then(load); }
   if (a === "odel") { if (!confirm(t("sure"))) return; return guard(rest.del("orders", id)).then(function () { st.open = null; return load(); }); }
   if (a === "selnone") { st.sel = {}; st.bulk = false; return render(); }
