@@ -922,7 +922,7 @@ en: {
   free: "Free", quoted: "Fee confirmed in chat", cAddress: "Delivery address", cNote: "Note (optional)",
   errName: "Enter your name.", errPhone: "Enter a phone number we can reach you on.", errAddress: "Enter the delivery address.",
   next: "Continue", back: "Back",
-  lStock: "In-stock pieces", lShip: "Shipping", lDeposit: "Pre-order deposit ({p}%)", lDue: "To pay now", lLater: "Due when pre-orders arrive",
+  lStock: "Items", lShip: "Shipping", lDeposit: "Pre-order deposit ({p}%)", lDue: "Total", lLater: "Due when pre-orders arrive",
   preShipLater: "Pre-ordered pieces are sent the way you choose once they arrive in Hanoi.",
   quoteNote: "Shipping isn't included yet. Send your order first, we'll reply with the shipping fee and your final total, and then you pay.",
   payScan: "Scan with any Vietnamese banking app. The amount and transfer note fill in for you.",
@@ -1895,7 +1895,7 @@ function placeOrder() {
   var data = {
     lang: lang, delivery: co.delivery, pay: co.pay, name: co.name.trim(), phone: co.phone.trim(), zalo: co.zalo.trim(), whatsapp: co.wa.trim(), ig: co.noIG ? "" : igClean(co.ig), via: co.noIG ? "phone" : "ig", contact: contactLine(), address: co.delivery === "pickup" ? "" : co.address.trim(), note: co.note.trim(),
     items: T.items.map(function (p) { return { id: p.id, brand: p.brand, name: p.name, size: p.size || "", price: p.price, type: p.type }; }),
-    due: T.due, deposit: T.deposit, shipQuoted: T.shipQuoted, usd: uc ? uc.total : null, usdFee: uc ? uc.fee : null, text: orderSummary(T),
+    due: T.due, deposit: T.deposit, shipQuoted: T.shipQuoted, usd: uc ? uc.total : null, usdFee: uc ? uc.fee : null, text: (function () { var keep = lang; lang = "vi"; try { return orderSummary(T); } finally { lang = keep; } })(),
     summary: contactLine() + " | " + T.items.map(function (p) { return p.brand + " " + p.name + (p.size ? " (" + p.size + ")" : ""); }).join("; ") + " | " + money(T.due) + (uc ? " (US$" + uc.total.toFixed(2) + ")" : "") + " | " + co.pay + " | " + co.delivery
   };
   co.busy = true; co.failed = false; renderCheckout();

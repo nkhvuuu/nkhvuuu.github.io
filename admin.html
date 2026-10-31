@@ -123,14 +123,27 @@ function bulkForm() {
   return '<form class="card" id="bform"><b>' + t("bulkTitle", { n: n }) + '</b><p style="color:var(--mute);margin:6px 0 0">' + t("bulkHint") + '</p>' + f + '<div class="bar"><button class="pri"' + (st.busy ? " disabled" : "") + ">" + t("apply") + '</button><button type="button" data-a="bulkcancel">' + t("cancel") + "</button></div></form>";
 }
 function newOrders() { return st.orders.filter(function (o) { return o.status === "new"; }).length; }
-function fmtVnd(n) { return "₫" + Math.round(+n || 0).toLocaleString("en-US"); }
+function fmtVnd(n) { return Math.round(+n || 0).toLocaleString("vi-VN") + "₫"; }
+var DELIV_VI = { pickup: "Nhận tại shop", vn: "Ship trong nước", express: "Giao hỏa tốc", intl: "Ship quốc tế" }, PAY_VI = { bank: "Chuyển khoản VN (VietQR)", paypal: "PayPal", zelle: "Zelle" };
+/* the order as text, always in Vietnamese, built from the saved fields (so older orders in English read the same) */
+function orderTextVi(d) {
+  var L = ["Món:"];
+  (d.items || []).forEach(function (i, n) { L.push((n + 1) + ". " + [i.brand, i.name].join(" ").trim() + (i.size ? " (size " + i.size + ")" : "") + " – " + fmtVnd(i.price) + (i.type === "preorder" ? " [Order hộ]" : "")); });
+  L.push("", "Tiền hàng: " + fmtVnd(d.due) + (d.deposit > 0 ? " (gồm cọc order " + fmtVnd(d.deposit) + ")" : ""));
+  L.push("Thanh toán: " + (PAY_VI[d.pay] || d.pay || "?") + (d.usd ? " – US$" + (+d.usd).toFixed(2) + (d.usdFee > 0 ? " (gồm phí " + (d.pay === "zelle" ? "Zelle" : "PayPal") + " US$" + (+d.usdFee).toFixed(2) + ")" : "") : ""));
+  L.push("Giao hàng: " + (DELIV_VI[d.delivery] || d.delivery || "?") + (d.shipQuoted ? " (phí ship báo sau qua chat)" : ""));
+  L.push("", "Tên: " + (d.name || ""), "Liên hệ: " + (d.contact || d.ig || d.phone || ""));
+  if (d.address) L.push("Địa chỉ: " + d.address);
+  if (d.note) L.push("Ghi chú: " + d.note);
+  return L.join("\n");
+}
 function ordersList() {
   if (st.ordersErr) return '<div class="msg err">' + t("ordersErr") + "</div>";
   if (!st.orders.length) return '<div class="card"><p>' + t("noOrders") + "</p></div>";
   return st.orders.map(function (o) {
     var d = o.data || {}, open = st.open === o.id, when = new Date(o.created_at).toLocaleString("vi-VN");
-    var h = '<div class="card" style="padding:12px"><button type="button" class="row" style="border:0;padding:0;margin:0;width:100%;text-align:left;background:transparent" data-a="oopen" data-id="' + o.id + '"><div class="t"><b>' + esc(d.name || "?") + (d.ig ? " " + esc(d.ig) : d.contact ? " (" + esc(d.contact) + ")" : "") + (o.status === "new" ? ' <span class="sold">' + t("oNew") + "</span>" : "") + "</b><small>" + esc(when) + " · " + fmtVnd(d.due) + (d.usd ? " (US$" + d.usd + ")" : "") + " · " + esc(d.pay || "") + " · " + esc(d.delivery || "") + "</small></div></button>";
-    if (open) h += '<pre style="white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:8px;margin:10px 0">' + esc(d.text || "") + '</pre><div class="bar" style="margin-top:0"><button class="pri" data-a="omsg" data-id="' + o.id + '">' + t(d.ig ? "oMsgIg" : "oMsgCopy") + '</button><button data-a="ocopy" data-id="' + o.id + '">' + t("oCopy") + '</button>' + (d.pay === "paypal" ? '<input id="ship-' + o.id + '" placeholder="' + t("oShipUsd") + '" inputmode="decimal" style="width:150px"><button data-a="oplink" data-id="' + o.id + '">' + t("oPayLink") + "</button>" : "") + '<button class="pri" data-a="ostatus" data-id="' + o.id + '">' + t(o.status === "new" ? "oMarkDone" : "oMarkNew") + '</button><button class="danger" data-a="odel" data-id="' + o.id + '">' + t("del") + "</button></div>";
+    var h = '<div class="card" style="padding:12px"><button type="button" class="row" style="border:0;padding:0;margin:0;width:100%;text-align:left;background:transparent" data-a="oopen" data-id="' + o.id + '"><div class="t"><b>' + esc(d.name || "?") + (d.ig ? " " + esc(d.ig) : d.contact ? " (" + esc(d.contact) + ")" : "") + (o.status === "new" ? ' <span class="sold">' + t("oNew") + "</span>" : "") + "</b><small>" + esc(when) + " · " + fmtVnd(d.due) + (d.usd ? " (US$" + d.usd + ")" : "") + " · " + esc(PAY_VI[d.pay] || d.pay || "") + " · " + esc(DELIV_VI[d.delivery] || d.delivery || "") + "</small></div></button>";
+    if (open) h += '<pre style="white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:8px;margin:10px 0">' + esc(orderTextVi(d)) + '</pre><div class="bar" style="margin-top:0"><button class="pri" data-a="omsg" data-id="' + o.id + '">' + t(d.ig ? "oMsgIg" : "oMsgCopy") + '</button><button data-a="ocopy" data-id="' + o.id + '">' + t("oCopy") + '</button>' + (d.pay === "paypal" ? '<input id="ship-' + o.id + '" placeholder="' + t("oShipUsd") + '" inputmode="decimal" style="width:150px"><button data-a="oplink" data-id="' + o.id + '">' + t("oPayLink") + "</button>" : "") + '<button class="pri" data-a="ostatus" data-id="' + o.id + '">' + t(o.status === "new" ? "oMarkDone" : "oMarkNew") + '</button><button class="danger" data-a="odel" data-id="' + o.id + '">' + t("del") + "</button></div>";
     return h + "</div>";
   }).join("");
 }
@@ -271,7 +284,7 @@ document.addEventListener("click", function (ev) {
     if (hdl) window.open("https://ig.me/m/" + encodeURIComponent(hdl), "_blank", "noopener");
     say(t("oMsgOk")); return render();
   }
-  if (a === "ocopy") { var oc = st.orders.filter(function (x) { return x.id === +id; })[0]; if (navigator.clipboard && oc) navigator.clipboard.writeText(oc.data.text || ""); say(t("copied")); return render(); }
+  if (a === "ocopy") { var oc = st.orders.filter(function (x) { return x.id === +id; })[0]; if (navigator.clipboard && oc) navigator.clipboard.writeText(orderTextVi(oc.data)); say(t("copied")); return render(); }
   if (a === "oplink") {
     var ol = st.orders.filter(function (x) { return x.id === +id; })[0], od = ol.data, acct = String(setting("pay.paypal")).replace(/^https?:\/\//i, ""), rate = +setting("usdRate"), fpct = +setting("fees.paypalPct") || 0, ffix = +setting("fees.paypalFixed") || 0;
     var shipUsd = parseFloat(String((document.getElementById("ship-" + id) || {}).value || "0").replace(",", ".")) || 0;
