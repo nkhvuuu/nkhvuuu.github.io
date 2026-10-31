@@ -39,7 +39,7 @@ var KINDS = { shoes: ["heels", "flats", "mules", "boots", "maryjanes", "sneakers
 var GRADES = ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6", "5.5", "5", "4.5", "4", "3.5", "3", "2.5", "2", "1.5", "1"], MAXPHOTOS = 10;
 var T = {
   vi: { orders: "Đơn hàng", settings: "Cài đặt", noOrders: "Chưa có đơn nào.", ordersErr: "Chưa đọc được đơn hàng. Bạn chạy file SQL mới trong Supabase (hướng dẫn trong docs/admin-setup.md) rồi tải lại trang.",
-    oNew: "Mới", oMsgIg: "Nhắn khách trên Instagram", oMsgCopy: "Sao chép lời nhắn", oMsgOk: "Đã sao chép lời nhắn. Dán vào khung chat rồi gửi.", oShipUsd: "Phí ship (USD)", oPayLink: "Sao chép link PayPal", oLinkErr: "Chưa có tài khoản paypal.me hoặc tỷ giá trong Cài đặt.", oLinkOk: "Đã sao chép link PayPal. Dán vào chat Instagram.", oDone: "Đã xử lý", oMarkDone: "Đánh dấu đã xử lý", oMarkNew: "Đánh dấu mới", oPay: "Thanh toán", oDel: "Giao hàng", oContact: "Liên hệ", oCopy: "Sao chép đơn", copied: "Đã sao chép.",
+    oNew: "Mới", oGreet: "Lời nhắn gửi khách (chạm để chọn, nếu nút không tự sao chép)", oMsgIg: "Nhắn khách trên Instagram", oMsgCopy: "Sao chép lời nhắn", oMsgOk: "Đã sao chép lời nhắn. Dán vào khung chat rồi gửi.", oShipUsd: "Phí ship (USD)", oPayLink: "Sao chép link PayPal", oLinkErr: "Chưa có tài khoản paypal.me hoặc tỷ giá trong Cài đặt.", oLinkOk: "Đã sao chép link PayPal. Dán vào chat Instagram.", oDone: "Đã xử lý", oMarkDone: "Đánh dấu đã xử lý", oMarkNew: "Đánh dấu mới", oPay: "Thanh toán", oDel: "Giao hàng", oContact: "Liên hệ", oCopy: "Sao chép đơn", copied: "Đã sao chép.",
     sShop: "Thông tin shop", sPhone: "Số điện thoại", sZalo: "Số Zalo", sWa: "Số WhatsApp", sAddr: "Địa chỉ shop", sOpen: "Giờ mở cửa", sClose: "Giờ đóng cửa", sDays: "Ngày mở cửa", sIg: "Instagram (không gõ @)", sIgStock: "Đồ có sẵn", sIgOrder: "Order hộ", sIgRental: "Cho thuê",
     sPay: "Thanh toán trong nước", sBank: "Ngân hàng (VietQR)", sNoBank: "Chưa chọn", sAcct: "Số tài khoản", sAcctName: "Tên chủ tài khoản (không dấu)", sDeposit: "Tỷ lệ cọc order (%)",
     sIntl: "Thanh toán quốc tế", sPaypal: "Tài khoản PayPal (email hoặc link)", sZelle: "Zelle (email hoặc SĐT)", sRate: "Tỷ giá (số ₫ cho 1 USD)", sFee: "Phí cộng thêm vào giá để shop nhận đủ tiền", sPpPct: "PayPal: phí %", sPpFix: "PayPal: phí cố định (USD)", sZePct: "Zelle: phí %", sZeFix: "Zelle: phí cố định (USD)",
@@ -123,14 +123,27 @@ function bulkForm() {
   return '<form class="card" id="bform"><b>' + t("bulkTitle", { n: n }) + '</b><p style="color:var(--mute);margin:6px 0 0">' + t("bulkHint") + '</p>' + f + '<div class="bar"><button class="pri"' + (st.busy ? " disabled" : "") + ">" + t("apply") + '</button><button type="button" data-a="bulkcancel">' + t("cancel") + "</button></div></form>";
 }
 function newOrders() { return st.orders.filter(function (o) { return o.status === "new"; }).length; }
-function fmtVnd(n) { return "₫" + Math.round(+n || 0).toLocaleString("en-US"); }
+function fmtVnd(n) { return Math.round(+n || 0).toLocaleString("vi-VN") + "₫"; }
+var DELIV_VI = { pickup: "Nhận tại shop", vn: "Ship trong nước", express: "Giao hỏa tốc", intl: "Ship quốc tế" }, PAY_VI = { bank: "Chuyển khoản VN (VietQR)", paypal: "PayPal", zelle: "Zelle" };
+/* the order as text, always in Vietnamese, built from the saved fields (so older orders in English read the same) */
+function orderTextVi(d) {
+  var L = ["Món:"];
+  (d.items || []).forEach(function (i, n) { L.push((n + 1) + ". " + [i.brand, i.name].join(" ").trim() + (i.size ? " (size " + i.size + ")" : "") + " – " + fmtVnd(i.price) + (i.type === "preorder" ? " [Order hộ]" : "")); });
+  L.push("", "Tiền hàng: " + fmtVnd(d.due) + (d.deposit > 0 ? " (gồm cọc order " + fmtVnd(d.deposit) + ")" : ""));
+  L.push("Thanh toán: " + (PAY_VI[d.pay] || d.pay || "?") + (d.usd ? " – US$" + (+d.usd).toFixed(2) + (d.usdFee > 0 ? " (gồm phí " + (d.pay === "zelle" ? "Zelle" : "PayPal") + " US$" + (+d.usdFee).toFixed(2) + ")" : "") : ""));
+  L.push("Giao hàng: " + (DELIV_VI[d.delivery] || d.delivery || "?") + (d.shipQuoted ? " (phí ship báo sau qua chat)" : ""));
+  L.push("", "Tên: " + (d.name || ""), "Liên hệ: " + (d.contact || d.ig || d.phone || ""));
+  if (d.address) L.push("Địa chỉ: " + d.address);
+  if (d.note) L.push("Ghi chú: " + d.note);
+  return L.join("\n");
+}
 function ordersList() {
   if (st.ordersErr) return '<div class="msg err">' + t("ordersErr") + "</div>";
   if (!st.orders.length) return '<div class="card"><p>' + t("noOrders") + "</p></div>";
   return st.orders.map(function (o) {
     var d = o.data || {}, open = st.open === o.id, when = new Date(o.created_at).toLocaleString("vi-VN");
-    var h = '<div class="card" style="padding:12px"><button type="button" class="row" style="border:0;padding:0;margin:0;width:100%;text-align:left;background:transparent" data-a="oopen" data-id="' + o.id + '"><div class="t"><b>' + esc(d.name || "?") + (d.ig ? " " + esc(d.ig) : d.contact ? " (" + esc(d.contact) + ")" : "") + (o.status === "new" ? ' <span class="sold">' + t("oNew") + "</span>" : "") + "</b><small>" + esc(when) + " · " + fmtVnd(d.due) + (d.usd ? " (US$" + d.usd + ")" : "") + " · " + esc(d.pay || "") + " · " + esc(d.delivery || "") + "</small></div></button>";
-    if (open) h += '<pre style="white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:8px;margin:10px 0">' + esc(d.text || "") + '</pre><div class="bar" style="margin-top:0"><button class="pri" data-a="omsg" data-id="' + o.id + '">' + t(d.ig ? "oMsgIg" : "oMsgCopy") + '</button><button data-a="ocopy" data-id="' + o.id + '">' + t("oCopy") + '</button>' + (d.pay === "paypal" ? '<input id="ship-' + o.id + '" placeholder="' + t("oShipUsd") + '" inputmode="decimal" style="width:150px"><button data-a="oplink" data-id="' + o.id + '">' + t("oPayLink") + "</button>" : "") + '<button class="pri" data-a="ostatus" data-id="' + o.id + '">' + t(o.status === "new" ? "oMarkDone" : "oMarkNew") + '</button><button class="danger" data-a="odel" data-id="' + o.id + '">' + t("del") + "</button></div>";
+    var h = '<div class="card" style="padding:12px"><button type="button" class="row" style="border:0;padding:0;margin:0;width:100%;text-align:left;background:transparent" data-a="oopen" data-id="' + o.id + '"><div class="t"><b>' + esc(d.name || "?") + (d.ig ? " " + esc(d.ig) : d.contact ? " (" + esc(d.contact) + ")" : "") + (o.status === "new" ? ' <span class="sold">' + t("oNew") + "</span>" : "") + "</b><small>" + esc(when) + " · " + fmtVnd(d.due) + (d.usd ? " (US$" + d.usd + ")" : "") + " · " + esc(PAY_VI[d.pay] || d.pay || "") + " · " + esc(DELIV_VI[d.delivery] || d.delivery || "") + "</small></div></button>";
+    if (open) h += '<pre style="white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:8px;margin:10px 0">' + esc(orderTextVi(d)) + '</pre><label>' + t("oGreet") + '</label><textarea readonly rows="6" onfocus="this.select()">' + esc(greetingFor(o)) + '</textarea><div class="bar">' + (d.ig ? '<a class="btn" data-omsg="' + o.id + '" href="https://ig.me/m/' + encodeURIComponent(String(d.ig).replace(/^@/, "")) + '" target="_blank" rel="noopener" style="background:var(--red);border-color:var(--red);color:#fff;font-weight:600;text-decoration:none">' + t("oMsgIg") + "</a>" : '<button class="pri" data-a="omsg" data-id="' + o.id + '">' + t("oMsgCopy") + "</button>") + '<button data-a="ocopy" data-id="' + o.id + '">' + t("oCopy") + '</button>' + (d.pay === "paypal" ? '<input id="ship-' + o.id + '" placeholder="' + t("oShipUsd") + '" inputmode="decimal" style="width:150px"><button data-a="oplink" data-id="' + o.id + '">' + t("oPayLink") + "</button>" : "") + '<button class="pri" data-a="ostatus" data-id="' + o.id + '">' + t(o.status === "new" ? "oMarkDone" : "oMarkNew") + '</button><button class="danger" data-a="odel" data-id="' + o.id + '">' + t("del") + "</button></div>";
     return h + "</div>";
   }).join("");
 }
@@ -160,6 +173,19 @@ function readSettings(f) {
     bank: { bin: g("bin"), account: g("account").replace(/\s/g, ""), name: g("bankName") }, deposit: Math.min(100, Math.round(num("deposit"))),
     pay: { paypal: g("paypal"), zelle: g("zelle") }, usdRate: Math.round(num("usdRate")) || 26000,
     fees: { paypalPct: num("paypalPct"), paypalFixed: num("paypalFixed"), zellePct: num("zellePct"), zelleFixed: num("zelleFixed") } };
+}
+function greetingFor(om) {
+    var od2 = om.data, vi = od2.lang !== "en", nm = od2.name || "";
+    var its = (od2.items || []).map(function (i) { return "- " + [i.brand, i.name].join(" ").trim() + (i.size ? " (size " + i.size + ")" : ""); }).join("\n");
+    var tot = fmtVnd(od2.due), later = od2.shipQuoted || od2.pay !== "bank";
+    var nextVi = later ? "Shop sẽ báo phí ship và tổng tiền cuối cùng cho bạn, sau đó gửi cách thanh toán nhé." : "Bạn chuyển khoản theo thông tin trên web (nếu chưa), rồi gửi ảnh chụp màn hình cho shop để shop xác nhận nhé.";
+    var nextEn = later ? "We'll now work out the shipping fee and your final total, then send you the payment details." : "Please transfer using the details on the website (if you haven't yet) and send us a screenshot so we can confirm.";
+    var msg = vi ? "Chào " + nm + ", Dodendi đây ạ! Shop đã nhận được đơn của bạn:\n" + its + "\nTiền hàng: " + tot + "\n" + nextVi : "Hi " + nm + ", it's Dodendi! We've got your order:\n" + its + "\nItems total: " + tot + "\n" + nextEn;
+  return msg;
+}
+function copyTxt(txt) {
+  try { if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(txt); return; } } catch (e) {}
+  var ta = document.createElement("textarea"); ta.value = txt; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove();
 }
 function say(m, err) { st.msg = m; st.err = !!err; }
 function render() {
@@ -243,6 +269,8 @@ function load() {
 function guard(p) { st.busy = true; return p.then(function (x) { st.busy = false; return x; }, function (e) { st.busy = false; say(t("fail") + (e.message || e), true); render(); throw e; }); }
 
 document.addEventListener("click", function (ev) {
+  var am = ev.target.closest("a[data-omsg]");
+  if (am) { var oa = st.orders.filter(function (x) { return x.id === +am.getAttribute("data-omsg"); })[0]; if (oa) copyTxt(greetingFor(oa)); say(t("oMsgOk")); setTimeout(render, 600); return; }
   var b = ev.target.closest("button"); if (!b) return;
   if (b.id === "backup") return backup();
   if (b.id === "out") { saveSession(null); st.msg = ""; return render(); }
@@ -259,19 +287,8 @@ document.addEventListener("click", function (ev) {
   if (a === "delete") { if (!confirm(t("sure"))) return; return guard(rest.del("products", st.draft.id)).then(function () { st.draft = null; say(""); return load(); }); }
   if (a === "delpost") { if (!confirm(t("sure"))) return; return guard(rest.del("posts", id)).then(load); }
   if (a === "oopen") { st.open = st.open === +id ? null : +id; return render(); }
-  if (a === "omsg") {
-    var om = st.orders.filter(function (x) { return x.id === +id; })[0], od2 = om.data, vi = od2.lang !== "en", nm = od2.name || "";
-    var its = (od2.items || []).map(function (i) { return "- " + [i.brand, i.name].join(" ").trim() + (i.size ? " (size " + i.size + ")" : ""); }).join("\n");
-    var tot = fmtVnd(od2.due), later = od2.shipQuoted || od2.pay !== "bank";
-    var nextVi = later ? "Shop sẽ báo phí ship và tổng tiền cuối cùng cho bạn, sau đó gửi cách thanh toán nhé." : "Bạn chuyển khoản theo thông tin trên web (nếu chưa), rồi gửi ảnh chụp màn hình cho shop để shop xác nhận nhé.";
-    var nextEn = later ? "We'll now work out the shipping fee and your final total, then send you the payment details." : "Please transfer using the details on the website (if you haven't yet) and send us a screenshot so we can confirm.";
-    var msg = vi ? "Chào " + nm + ", Dodendi đây ạ! Shop đã nhận được đơn của bạn:\n" + its + "\nTiền hàng: " + tot + "\n" + nextVi : "Hi " + nm + ", it's Dodendi! We've got your order:\n" + its + "\nItems total: " + tot + "\n" + nextEn;
-    if (navigator.clipboard) navigator.clipboard.writeText(msg);
-    var hdl = String(od2.ig || "").replace(/^@/, "");
-    if (hdl) window.open("https://ig.me/m/" + encodeURIComponent(hdl), "_blank", "noopener");
-    say(t("oMsgOk")); return render();
-  }
-  if (a === "ocopy") { var oc = st.orders.filter(function (x) { return x.id === +id; })[0]; if (navigator.clipboard && oc) navigator.clipboard.writeText(oc.data.text || ""); say(t("copied")); return render(); }
+  if (a === "omsg") { var om0 = st.orders.filter(function (x) { return x.id === +id; })[0]; copyTxt(greetingFor(om0)); say(t("oMsgOk")); return render(); }
+  if (a === "ocopy") { var oc = st.orders.filter(function (x) { return x.id === +id; })[0]; if (navigator.clipboard && oc) navigator.clipboard.writeText(orderTextVi(oc.data)); say(t("copied")); return render(); }
   if (a === "oplink") {
     var ol = st.orders.filter(function (x) { return x.id === +id; })[0], od = ol.data, acct = String(setting("pay.paypal")).replace(/^https?:\/\//i, ""), rate = +setting("usdRate"), fpct = +setting("fees.paypalPct") || 0, ffix = +setting("fees.paypalFixed") || 0;
     var shipUsd = parseFloat(String((document.getElementById("ship-" + id) || {}).value || "0").replace(",", ".")) || 0;
