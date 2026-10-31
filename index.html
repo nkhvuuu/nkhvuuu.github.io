@@ -802,11 +802,19 @@ var BANKS = [
 /* ---------- strings ---------- */
 var I18N = {
 en: {
-  doneDQ: "Your order is saved. We'll message you on Instagram with the shipping fee and your final total, and then you pay.",
+  estNote: "This is only an estimate for the items. We'll message you the final total with shipping and send the payment link, so you don't need to pay anything yet.",
+  estL: "Estimate for the items",
+  doneOther: "Your order is saved. We'll contact you on {v}, at the phone number you gave, to confirm it and agree the final total (items, shipping and any payment fee) before you pay.",
+  sumContact: "Contact",
+  via_phone: "Phone or Zalo",
+  via_wa: "WhatsApp",
+  via_ig: "Instagram",
+  cVia: "Best way to reach you",
+  doneDQ: "Your order is saved. We'll message you on Instagram with the final total (items, shipping and any payment fee) and how to pay.",
   payNowHint: "This opens PayPal with the amount already filled in. After you pay, message us on Instagram so we can match your payment.",
   payNowBtn: "Pay {a} with PayPal",
   errIG: "Enter your Instagram username.",
-  cIG: "Your Instagram (so we can message you)",
+  cIG: "Your Instagram username",
   sendAmtItemsL: "Send for the items",
   sumEmail: "Email",
   baseL: "Price in US$",
@@ -818,7 +826,7 @@ en: {
   doneT: "Thank you, we've got your order",
   orSendIG: "Or send it on Instagram instead",
   placeFail: "We couldn't send your order just now. Please send it on Instagram instead: tap the button below and your order is copied, ready to paste in the chat.",
-  placeDQ: "Tap Place order. Your order reaches us straight away, we'll reply with the shipping fee and your final total, and then you pay.",
+  placeDQ: "Tap Place order. Your order reaches us straight away. We'll message you with the final total (items, shipping and any payment fee) and how to pay, so you don't pay anything yet.",
   placeD: "Pay with the details above, then tap Place order. Your order reaches us straight away and we'll confirm once your payment arrives.",
   placing: "Sending…",
   placeBtn: "Place order",
@@ -939,11 +947,19 @@ en: {
   adFeedNeedImg: "Choose at least one photo first.", adFeedNeedUrl: "Paste the link of an Instagram post.", adFeedEmpty: "No posts yet, so the site shows quiet placeholder tiles that link to @{h}.", adFeedAdded: "Added. Publish to put it live.", adFeedCount: "{n} of {m} posts.", adFeedPhotos: "{n} photos"
 },
 vi: {
-  doneDQ: "Đơn của bạn đã được lưu. Shop sẽ nhắn bạn qua Instagram để báo phí ship và tổng tiền cuối cùng, sau đó bạn mới thanh toán.",
+  estNote: "Đây chỉ là số tiền ước tính cho tiền hàng. Shop sẽ nhắn bạn tổng tiền cuối cùng kèm phí ship và gửi link thanh toán, nên bạn chưa cần chuyển tiền ngay.",
+  estL: "Ước tính tiền hàng",
+  doneOther: "Đơn của bạn đã được lưu. Shop sẽ liên hệ bạn qua {v}, theo số điện thoại bạn đã nhập, để xác nhận đơn và chốt tổng tiền cuối cùng (tiền hàng, phí ship và phí thanh toán nếu có) trước khi bạn thanh toán.",
+  sumContact: "Liên hệ",
+  via_phone: "Điện thoại hoặc Zalo",
+  via_wa: "WhatsApp",
+  via_ig: "Instagram",
+  cVia: "Cách liên hệ tốt nhất",
+  doneDQ: "Đơn của bạn đã được lưu. Shop sẽ nhắn bạn qua Instagram tổng tiền cuối cùng (tiền hàng, phí ship và phí thanh toán nếu có) cùng cách thanh toán.",
   payNowHint: "Nút này mở PayPal với số tiền đã điền sẵn. Thanh toán xong, bạn nhắn shop trên Instagram để shop đối chiếu nhé.",
   payNowBtn: "Thanh toán {a} qua PayPal",
   errIG: "Bạn nhập tên Instagram nhé.",
-  cIG: "Instagram của bạn (để shop nhắn tin)",
+  cIG: "Tên Instagram của bạn",
   sendAmtItemsL: "Số tiền gửi cho tiền hàng",
   sumEmail: "Email",
   baseL: "Giá quy đổi USD",
@@ -955,7 +971,7 @@ vi: {
   doneT: "Cảm ơn bạn, shop đã nhận được đơn",
   orSendIG: "Hoặc gửi đơn qua Instagram",
   placeFail: "Chưa gửi được đơn lúc này. Bạn gửi đơn qua Instagram nhé: bấm nút bên dưới, đơn hàng sẽ được sao chép sẵn để bạn dán vào khung chat.",
-  placeDQ: "Bạn bấm Đặt hàng. Đơn sẽ được gửi thẳng đến shop, shop sẽ báo phí ship và tổng tiền cuối cùng, sau đó bạn mới thanh toán.",
+  placeDQ: "Bạn bấm Đặt hàng. Đơn sẽ được gửi thẳng đến shop. Shop sẽ nhắn bạn tổng tiền cuối cùng (tiền hàng, phí ship và phí thanh toán nếu có) cùng cách thanh toán, nên bạn chưa cần chuyển tiền ngay.",
   placeD: "Bạn thanh toán theo thông tin ở trên rồi bấm Đặt hàng. Đơn sẽ được gửi thẳng đến shop, và shop xác nhận khi nhận được tiền.",
   placing: "Đang gửi…",
   placeBtn: "Đặt hàng",
@@ -1672,7 +1688,7 @@ function renderDetail(idx) {
 function openDetail(id) { detailId = id; renderDetail(0); openDlg("detailDlg"); }
 
 /* ---------- checkout ---------- */
-var co = { step: 1, delivery: "pickup", name: "", phone: "", ig: "", address: "", note: "", pay: "", failed: false, busy: false };
+var co = { step: 1, delivery: "pickup", name: "", phone: "", via: "ig", ig: "", address: "", note: "", pay: "", failed: false, busy: false };
 LS.del("dd-details");   /* older versions remembered the customer's details; this one keeps nothing */
 function quotedDelivery(d) { return d === "express" || d === "intl"; }
 function totals() {
@@ -1710,13 +1726,14 @@ function notesFor(T) {
 }
 /* the customer pays in dong by VietQR, or in dollars by PayPal or Zelle; abroad the dollar methods come first */
 function payOrder() { return co.delivery === "intl" ? ["paypal", "zelle", "bank"] : ["bank", "paypal", "zelle"]; }
+function contactLine() { return co.via === "ig" ? igClean(co.ig) : t(co.via === "wa" ? "via_wa" : "via_phone") + " " + co.phone.trim(); }
 function igClean(v) {
   var h = String(v || "").trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/[/?].*$/, "").replace(/^@/, "");
   return /^[A-Za-z0-9._]{1,30}$/.test(h) ? "@" + h : "";
 }
 /* bank transfer note (banks allow about 25 characters): who, what, and how it ships */
 function payMemo() {
-  var T = totals(), ig = igClean(co.ig).replace(/^@/, "").slice(0, 10);
+  var T = totals(), ig = co.via === "ig" ? igClean(co.ig).replace(/^@/, "").slice(0, 10) : plain(co.name).replace(/[^A-Za-z0-9]/g, "").slice(0, 10);
   var first = plain(T.items[0] ? T.items[0].name : "").replace(/[^A-Za-z0-9]/g, "").slice(0, 6);
   var ship = { pickup: "PICKUP", vn: "VN", express: "EXPRESS", intl: "INTL" }[co.delivery] || "";
   return ("@" + ig + " " + first + (T.items.length > 1 ? "+" + (T.items.length - 1) : "") + " " + ship).trim().slice(0, 25);
@@ -1729,10 +1746,6 @@ function usdCalc(vnd, m) {
   var base = Math.ceil(vnd / r * 100) / 100;
   var total = Math.ceil((base + fix) / (1 - pct / 100) * 100) / 100;
   return { base: base, fee: Math.round((total - base) * 100) / 100, total: total };
-}
-function paypalLink(total) {
-  var acct = String((ST.pay && ST.pay.paypal) || "").trim().replace(/^https?:\/\//i, "");
-  return /^paypal\.me\/[A-Za-z0-9._-]+$/i.test(acct) && total > 0 ? "https://" + acct + "/" + total.toFixed(2) + "USD" : "";
 }
 function usd(n) { return "US$" + n.toFixed(2); }
 function payBox(T) {
@@ -1750,18 +1763,17 @@ function payBox(T) {
     if (bank.name) h += '<p class="notice">' + esc(t("checkName", { n: bank.name })) + "</p>";
     return h;
   }
-  var acct = ST.pay && ST.pay[m];
-  if (!acct) return '<p class="notice">' + esc(t("payPending", { m: t("pmS_" + m) })) + "</p>";
   var c = usdCalc(T.due, m);
-  h += '<dl class="kv">' + kv(t(m === "paypal" ? "ppL" : "zlL"), acct, true);
+  h += '<dl class="kv">';
   if (c) {
-    if (c.fee > 0) h += kv(t("baseL"), usd(c.base), false) + kv(t("feeL", { m: t("pmS_" + m) }), usd(c.fee), false);
-    h += kv(t(T.shipQuoted ? "sendAmtItemsL" : "sendAmtL"), usd(c.total), c.total.toFixed(2));
+    h += kv(t("baseL"), usd(c.base), false);
+    if (c.fee > 0) h += kv(t("feeL", { m: t("pmS_" + m) }), usd(c.fee), false);
+    h += kv(t("estL"), usd(c.total), false);
   } else h += kv(t("amountL"), money(T.due), false);
   h += "</dl>";
   if (c) h += '<p class="hint">' + esc((c.fee > 0 ? t("feeNote") + " " : "") + t("usdNote", { r: (Number(ST.usdRate) || 0).toLocaleString(lang === "vi" ? "vi-VN" : "en-US") })) + "</p>";
+  h += '<p class="notice">' + esc(t("estNote")) + "</p>";
   if (m === "zelle") h += '<p class="hint">' + esc(t("zelleNote")) + "</p>";
-  if (co.name.trim()) h += '<p class="hint">' + esc(t("payNote", { n: co.name.trim() })) + "</p>";
   return h;
 }
 function renderCheckout() {
@@ -1776,7 +1788,10 @@ function renderCheckout() {
       '<p class="notice" id="intlNote"' + (intl ? "" : " hidden") + ">" + esc(t("intlNote")) + "</p>" +
       '<div class="row2"><div class="field"><label for="co-name">' + esc(t("cName")) + '</label><input id="co-name" autocomplete="name" value="' + esc(co.name) + '"><p class="err" id="err-name" hidden></p></div>' +
       '<div class="field"><label for="co-phone" id="phoneLbl">' + esc(t(intl ? "cPhoneIntl" : "cPhone")) + '</label><input id="co-phone" type="tel" inputmode="tel" autocomplete="tel" value="' + esc(co.phone) + '"><p class="err" id="err-phone" hidden></p></div></div>' +
-      '<div class="field"><label for="co-ig">' + esc(t("cIG")) + '</label><input id="co-ig" autocomplete="off" autocapitalize="none" placeholder="@" value="' + esc(co.ig) + '"><p class="err" id="err-ig" hidden></p></div>' +
+      '<fieldset class="opts"><legend>' + esc(t("cVia")) + "</legend>" + ["ig", "wa", "phone"].map(function (v) {
+        return '<label class="opt"><input type="radio" name="co-via" value="' + v + '"' + (co.via === v ? " checked" : "") + "><span>" + esc(t("via_" + v)) + "</span></label>";
+      }).join("") + "</fieldset>" +
+      '<div class="field" id="igField"' + (co.via === "ig" ? "" : " hidden") + '><label for="co-ig">' + esc(t("cIG")) + '</label><input id="co-ig" autocomplete="off" autocapitalize="none" placeholder="@" value="' + esc(co.ig) + '"><p class="err" id="err-ig" hidden></p></div>' +
       '<div class="field" id="addrField"' + (co.delivery === "pickup" ? " hidden" : "") + '><label for="co-address" id="addrLbl">' + esc(t(intl ? "cAddressIntl" : "cAddress")) + '</label><input id="co-address" autocomplete="street-address" value="' + esc(co.address) + '"><p class="err" id="err-address" hidden></p></div>' +
       '<div class="field"><label for="co-note">' + esc(t("cNote")) + '</label><input id="co-note" autocomplete="off" value="' + esc(co.note) + '"></div>' +
       '<div class="sum" id="coSum">' + sumLines(T) + "</div>" +
@@ -1796,15 +1811,14 @@ function renderCheckout() {
       return '<label class="opt"><input type="radio" name="co-pay" value="' + m + '"' + (co.pay === m ? " checked" : "") + "><span>" + esc(t("pm_" + m)) + "</span></label>";
     }).join("") + "</fieldset>" + payBox(T);
     if (co.failed) h += '<p class="notice">' + esc(t("placeFail")) + "</p>" + igLink;
-    else h += '<p class="hint">' + esc(t(T.shipQuoted ? "placeDQ" : "placeD")) + '</p><button type="button" class="btn solid wide" data-co="place"' + (co.busy ? " disabled" : "") + ">" + esc(t(co.busy ? "placing" : "placeBtn")) + "</button>" + igLink;
+    else h += '<p class="hint">' + esc(t(T.shipQuoted || co.pay !== "bank" ? "placeDQ" : "placeD")) + '</p><button type="button" class="btn solid wide" data-co="place"' + (co.busy ? " disabled" : "") + ">" + esc(t(co.busy ? "placing" : "placeBtn")) + "</button>" + igLink;
     h += '<details class="sumprev"><summary>' + esc(t("seeMsg")) + '</summary><pre class="msg" id="sumText" tabindex="0">' + esc(orderSummary(T)) + '</pre><button type="button" class="btn" data-co="copy">' + esc(t("copyAgain")) + "</button></details>" +
       '<div class="co-actions"><button type="button" class="btn" data-co="back">' + esc(t("back")) + '</button><span></span></div></div>';
     body.innerHTML = h;
   } else {
-    var hd = co.handle || ST.ig.order, extl = ' target="_blank" rel="noopener noreferrer"';
-    body.innerHTML = '<div class="form"><h3 class="sendt">' + esc(t("doneT")) + '</h3><p class="hint">' + esc(t(co.doneQ ? "doneDQ" : "doneD")) + "</p>" +
-      (co.paylink ? '<a class="btn solid wide" href="' + esc(co.paylink) + '"' + extl + ">" + esc(t("payNowBtn", { a: usd(co.paytotal) })) + '</a><p class="hint">' + esc(t("payNowHint")) + "</p>" : "") +
-      '<a class="btn' + (co.paylink ? "" : " solid") + ' wide" href="https://ig.me/m/' + encodeURIComponent(hd) + '"' + extl + ">" + esc(t("doneBtn", { h: hd })) + '</a>' +
+    var hd = co.handle || ST.ig.order, extl = ' target="_blank" rel="noopener noreferrer"', viaIG = co.doneVia === "ig";
+    body.innerHTML = '<div class="form"><h3 class="sendt">' + esc(t("doneT")) + '</h3><p class="hint">' + esc(viaIG ? t(co.doneQ ? "doneDQ" : "doneD") : t("doneOther", { v: t(co.doneVia === "wa" ? "via_wa" : "via_phone") })) + "</p>" +
+      (viaIG ? '<a class="btn solid wide" href="https://ig.me/m/' + encodeURIComponent(hd) + '"' + extl + ">" + esc(t("doneBtn", { h: hd })) + "</a>" : "") +
       '<div class="co-actions"><span></span><button type="button" class="btn" data-co="close">' + esc(t("close")) + "</button></div></div>";
   }
   body.scrollTop = 0;
@@ -1831,7 +1845,7 @@ function orderSummary(T) {
   L.push("");
   L.push(t("sumDelivery") + ": " + t("d_" + co.delivery));
   L.push(t("sumName") + ": " + co.name);
-  L.push(t("sumIG") + ": " + igClean(co.ig));
+  L.push(t("sumContact") + ": " + contactLine());
   L.push(t("sumPhone") + ": " + co.phone);
   if (co.delivery !== "pickup" && co.address) L.push(t("sumAddr") + ": " + co.address);
   if (co.note) L.push(t("sumNote") + ": " + co.note);
@@ -1842,7 +1856,7 @@ function validateStep1() {
   function setErr(id, msg) { var e = $("#err-" + id); if (!e) return; e.textContent = msg || ""; e.hidden = !msg; if (msg) ok = false; }
   setErr("name", co.name.trim() ? "" : t("errName"));
   setErr("phone", co.phone.replace(/\D/g, "").length >= 8 ? "" : t("errPhone"));
-  setErr("ig", igClean(co.ig) ? "" : t("errIG"));
+  setErr("ig", co.via !== "ig" || igClean(co.ig) ? "" : t("errIG"));
   setErr("address", co.delivery === "pickup" || co.address.trim() ? "" : t("errAddress"));
   if (!ok) { var first = $("#coForm .err:not([hidden])"); if (first) { var inp = first.parentNode.querySelector("input"); if (inp) inp.focus(); } }
   return ok;
@@ -1853,7 +1867,7 @@ function placeOrder() {
   if (!(c && c.url && c.key) || co.busy) return;
   var uc = co.pay !== "bank" ? usdCalc(T.due, co.pay) : null;
   var data = {
-    lang: lang, delivery: co.delivery, pay: co.pay, name: co.name.trim(), phone: co.phone.trim(), ig: igClean(co.ig), address: co.delivery === "pickup" ? "" : co.address.trim(), note: co.note.trim(),
+    lang: lang, delivery: co.delivery, pay: co.pay, name: co.name.trim(), phone: co.phone.trim(), ig: co.via === "ig" ? igClean(co.ig) : "", via: co.via, address: co.delivery === "pickup" ? "" : co.address.trim(), note: co.note.trim(),
     items: T.items.map(function (p) { return { id: p.id, brand: p.brand, name: p.name, size: p.size || "", price: p.price, type: p.type }; }),
     due: T.due, deposit: T.deposit, shipQuoted: T.shipQuoted, usd: uc ? uc.total : null, usdFee: uc ? uc.fee : null, text: orderSummary(T),
     summary: T.items.map(function (p) { return p.brand + " " + p.name + (p.size ? " (" + p.size + ")" : ""); }).join("; ") + " | " + money(T.due) + (uc ? " (US$" + uc.total.toFixed(2) + ")" : "") + " | " + co.pay + " | " + co.delivery
@@ -1862,7 +1876,7 @@ function placeOrder() {
   fetch(c.url.replace(/\/$/, "") + "/rest/v1/orders", { method: "POST", headers: { apikey: c.key, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify({ data: data }) })
     .then(function (r) { if (!r.ok) throw new Error(r.status); })
     .then(function () {
-      co.busy = false; co.handle = T.stock.length ? ST.ig.stock : ST.ig.order; co.paylink = co.pay === "paypal" && !T.shipQuoted && uc ? paypalLink(uc.total) : ""; co.paytotal = uc ? uc.total : 0; co.doneQ = T.shipQuoted;
+      co.busy = false; co.handle = T.stock.length ? ST.ig.stock : ST.ig.order; co.doneQ = T.shipQuoted || co.pay !== "bank"; co.doneVia = co.via;
       cart = []; saveCart(); renderBag(); refreshAddButtons(); co.step = 3; renderCheckout();
     }, function () { co.busy = false; co.failed = true; renderCheckout(); });
 }
@@ -2173,6 +2187,7 @@ document.addEventListener("change", function (e) {
   if (el.id === "brandSel") { filter.brand = el.value; renderGrid(); return; }
   if (el.id === "pf-cat") { readDraftFields(); A.draft.kind = ""; renderAdmin(); return; }
   if (el.name === "co-pay") { co.pay = el.value; renderCheckout(); var pr = $('input[name="co-pay"]:checked'); if (pr) pr.focus(); return; }
+  if (el.name === "co-via") { co.via = el.value; $("#igField").hidden = co.via !== "ig"; return; }
   if (el.name === "co-delivery") {
     co.delivery = el.value; co.pay = ""; $("#addrField").hidden = co.delivery === "pickup";
     var intl = co.delivery === "intl";
