@@ -930,7 +930,7 @@ en: {
   adNoProducts: "No products yet. Add your first piece.",
   adSecPay: "Payment & deposit", adSecPay2: "Payment", adSecStore: "Shop & contact", adSaved: "Saved in this tab. Publish to put it live.",
   adFeed: "Instagram feed", adFeedHint: "The site can't pull posts from Instagram by itself. To show a post from @{h}, upload its photos (up to {k}), paste its link and copy in the caption. Newest first; past {n} posts the oldest drops off.",
-  adFeedLine: "Which running line", adFeedImg: "Photos (up to 4)", adFeedImgHint: "Each photo is cropped square and resized to 600 px. The first one is the tile on the strip.", adFeedUrl: "Post link", adFeedCap: "Caption (optional)", adFeedDate: "Post date (optional)", adFeedAdd: "Add to feed",
+  adFeedLine: "Which running line", adFeedNone: "Neither (hidden)", adFeedImg: "Photos (up to 4)", adFeedImgHint: "Each photo is cropped square and resized to 600 px. The first one is the tile on the strip.", adFeedUrl: "Post link", adFeedCap: "Caption (optional)", adFeedDate: "Post date (optional)", adFeedAdd: "Add to feed",
   adFeedNeedImg: "Choose at least one photo first.", adFeedNeedUrl: "Paste the link of an Instagram post.", adFeedEmpty: "No posts yet, so the site shows quiet placeholder tiles that link to @{h}.", adFeedAdded: "Added. Publish to put it live.", adFeedCount: "{n} of {m} posts.", adFeedPhotos: "{n} photos"
 },
 vi: {
@@ -1061,7 +1061,7 @@ vi: {
   adNoProducts: "Chưa có sản phẩm nào. Thêm món đầu tiên nhé.",
   adSecPay: "Thanh toán & cọc", adSecPay2: "Thanh toán", adSecStore: "Shop & liên hệ", adSaved: "Đã lưu trong tab này. Bấm Đăng để cập nhật shop.",
   adFeed: "Feed Instagram", adFeedHint: "Web không tự lấy bài từ Instagram được. Muốn hiện một bài của @{h}, bạn tải ảnh bài đó lên (tối đa {k} ảnh), dán link bài và chép chú thích vào. Bài mới nằm đầu; quá {n} bài thì bài cũ nhất tự gỡ.",
-  adFeedLine: "Dòng chạy nào", adFeedImg: "Ảnh (tối đa 4)", adFeedImgHint: "Mỗi ảnh được cắt vuông và thu về 600 px. Ảnh đầu tiên là ô trên dải ảnh.", adFeedUrl: "Link bài đăng", adFeedCap: "Chú thích (không bắt buộc)", adFeedDate: "Ngày đăng (không bắt buộc)", adFeedAdd: "Thêm vào feed",
+  adFeedLine: "Dòng chạy nào", adFeedNone: "Chưa chọn (ẩn)", adFeedImg: "Ảnh (tối đa 4)", adFeedImgHint: "Mỗi ảnh được cắt vuông và thu về 600 px. Ảnh đầu tiên là ô trên dải ảnh.", adFeedUrl: "Link bài đăng", adFeedCap: "Chú thích (không bắt buộc)", adFeedDate: "Ngày đăng (không bắt buộc)", adFeedAdd: "Thêm vào feed",
   adFeedNeedImg: "Bạn chọn ít nhất một ảnh trước nhé.", adFeedNeedUrl: "Bạn dán link một bài đăng Instagram nhé.", adFeedEmpty: "Chưa có bài nào nên web đang hiện các ô trống, bấm vào sẽ mở @{h}.", adFeedAdded: "Đã thêm. Bấm Đăng để cập nhật shop.", adFeedCount: "{n} / {m} bài.", adFeedPhotos: "{n} ảnh"
 }
 };
@@ -1113,14 +1113,23 @@ S.products.forEach(function (p) {
   if (!p.kind || KINDS[p.cat].indexOf(p.kind) < 0) p.kind = "";
 });
 /* feed posts are {imgs:[…up to 4], url, caption?, date?}; old tiles {img, url, caption?} are read as one-photo posts */
+/* which running line a post belongs to: the brand named in its caption decides (so a wrong pick in the admin can't put an Anna Sui post on the Vivienne line); with no brand in the caption the saved choice is used; anything else (other brands) stays off both lines */
+var VW_RE = /vivienne|vv\s*enne|west\s*wo*d/i, AS_RE = /anna\s*sui/i;
+function feedLine(f) {
+  var c = f.caption || "", iv = c.search(VW_RE), ia = c.search(AS_RE);
+  if (iv >= 0 && (ia < 0 || iv < ia)) return "vw";
+  if (ia >= 0) return "as";
+  return f.line === "vw" || f.line === "as" ? f.line : "none";
+}
 function normFeed(list) {
   return (Array.isArray(list) ? list : []).map(function (f) {
     if (!f || typeof f !== "object") return null;
     var imgs = (Array.isArray(f.imgs) ? f.imgs : [f.img]).filter(function (u) { return typeof u === "string" && /^(data:image\/|https:\/\/)/.test(u); }).slice(0, FEED_PHOTOS);
     if (!imgs.length) return null;
-    var o = { imgs: imgs, url: typeof f.url === "string" ? f.url : "", line: f.line === "as" ? "as" : "vw" };
+    var o = { imgs: imgs, url: typeof f.url === "string" ? f.url : "", line: f.line };
     if (typeof f.caption === "string" && f.caption.trim()) o.caption = f.caption.replace(/\r\n?/g, "\n").trim().slice(0, FEED_CAP_MAX);
     if (typeof f.date === "string" && validDate(f.date)) o.date = f.date;
+    o.line = feedLine(o);
     return o;
   }).filter(Boolean).slice(0, FEED_MAX);
 }
@@ -1952,7 +1961,7 @@ function renderAdmin() {
         (fd.imgs.length ? '<div class="photos">' + fd.imgs.map(function (src, i) { return '<div class="pv sq"><img src="' + esc(src) + '" alt=""><button type="button" data-ad="feed-rmimg" data-i="' + i + '" aria-label="' + esc(t("remove")) + '">×</button></div>'; }).join("") + "</div>" : "") +
         (fd.imgs.length < FEED_PHOTOS ? '<input type="file" id="ff-file" accept="image/*" multiple>' : "") +
         '<p class="hint">' + esc(t("adFeedImgHint")) + "</p></div>" +
-      '<div class="field"><label for="ff-line">' + esc(t("adFeedLine")) + '</label><select id="ff-line">' + LINES.map(function (l) { return '<option value="' + l.id + '"' + (fd.line === l.id ? " selected" : "") + ">" + esc(l.name) + "</option>"; }).join("") + "</select></div>" +
+      '<div class="field"><label for="ff-line">' + esc(t("adFeedLine")) + '</label><select id="ff-line">' + LINES.concat([{ id: "none", name: t("adFeedNone") }]).map(function (l) { return '<option value="' + l.id + '"' + (fd.line === l.id ? " selected" : "") + ">" + esc(l.name) + "</option>"; }).join("") + "</select></div>" +
       '<div class="row2"><div class="field"><label for="ff-url">' + esc(t("adFeedUrl")) + '</label><input id="ff-url" type="url" inputmode="url" placeholder="https://www.instagram.com/p/…" value="' + esc(fd.url) + '"></div>' +
       '<div class="field"><label for="ff-date">' + esc(t("adFeedDate")) + '</label><input id="ff-date" type="date" value="' + esc(fd.date) + '"></div></div>' +
       '<div class="field"><label for="ff-cap">' + esc(t("adFeedCap")) + '</label><textarea id="ff-cap" rows="5" maxlength="' + FEED_CAP_MAX + '">' + esc(fd.caption) + "</textarea></div>" +
@@ -1960,7 +1969,7 @@ function renderAdmin() {
       '<div class="co-actions"><span class="hint">' + esc(t("adFeedCount", { n: S.feed.length, m: FEED_MAX })) + '</span><button type="button" class="btn solid" data-ad="feed-add">' + esc(t("adFeedAdd")) + "</button></div></div>";
     if (!S.feed.length) h += '<p class="hint" style="padding:16px 0">' + esc(t("adFeedEmpty")) + "</p>";
     h += S.feed.map(function (f, i) {
-      var meta = [LINES.filter(function (l) { return l.id === f.line; })[0].name, f.date ? fmtPostDate(f.date) : "", f.imgs.length > 1 ? t("adFeedPhotos", { n: f.imgs.length }) : ""].filter(Boolean).join(" · ");
+      var meta = [(LINES.filter(function (l) { return l.id === f.line; })[0] || { name: t("adFeedNone") }).name, f.date ? fmtPostDate(f.date) : "", f.imgs.length > 1 ? t("adFeedPhotos", { n: f.imgs.length }) : ""].filter(Boolean).join(" · ");
       return '<div class="ad-row ad-feed"><span class="thumb sq"><img src="' + esc(f.imgs[0]) + '" alt=""></span><div><p class="t2">' + esc(f.url || "") + "</p>" + (meta ? '<p class="t2">' + esc(meta) + "</p>" : "") + (f.caption ? '<p class="t2 cap2">' + esc(f.caption) + "</p>" : "") + "</div><span></span>" +
         '<div class="acts"><button type="button" class="mini" data-rmfeed="' + i + '">' + esc(t("adDelete")) + "</button></div></div>";
     }).join("");
@@ -2022,7 +2031,7 @@ function readFeedFields() {
   if (u) A.feed.url = u.value.trim();
   if (c) A.feed.caption = c.value.replace(/\r\n?/g, "\n").trim();
   if (d) A.feed.date = d.value;
-  var ln = document.getElementById("ff-line"); if (ln) A.feed.line = ln.value === "as" ? "as" : "vw";
+  var ln = document.getElementById("ff-line"); if (ln) A.feed.line = ln.value === "as" ? "as" : ln.value === "vw" ? "vw" : "none";
 }
 function setPath(obj, path, val) { var ks = path.split("."); var o = obj; for (var i = 0; i < ks.length - 1; i++) o = o[ks[i]]; o[ks[ks.length - 1]] = val; }
 function publishNow() {
