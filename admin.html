@@ -38,7 +38,12 @@ var CATS = ["shoes", "eyewear", "watches", "jewellery", "bags", "clothing", "acc
 var KINDS = { shoes: ["heels", "flats", "mules", "boots", "maryjanes", "sneakers", "sandals"], eyewear: ["sunglasses", "frames"], watches: [], jewellery: ["necklaces", "earrings", "rings", "bracelets", "brooches"], bags: ["handbags", "crossbody", "wallets"], clothing: ["tops", "dresses", "skirts", "outerwear"], accessories: ["hair", "belts", "other"] };
 var GRADES = ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6", "5.5", "5", "4.5", "4", "3.5", "3", "2.5", "2", "1.5", "1"], MAXPHOTOS = 10;
 var T = {
-  vi: { admin: "quản lý", email: "Email", pass: "Mật khẩu", login: "Đăng nhập", logout: "Đăng xuất", bad: "Sai email hoặc mật khẩu.", notAdmin: "Tài khoản này chưa được sửa shop. Nhờ Vu thêm email của bạn.",
+  vi: { orders: "Đơn hàng", settings: "Cài đặt", noOrders: "Chưa có đơn nào.", ordersErr: "Chưa đọc được đơn hàng. Bạn chạy file SQL mới trong Supabase (hướng dẫn trong docs/admin-setup.md) rồi tải lại trang.",
+    oNew: "Mới", oDone: "Đã xử lý", oMarkDone: "Đánh dấu đã xử lý", oMarkNew: "Đánh dấu mới", oPay: "Thanh toán", oDel: "Giao hàng", oContact: "Liên hệ", oCopy: "Sao chép đơn", copied: "Đã sao chép.",
+    sShop: "Thông tin shop", sPhone: "Số điện thoại", sZalo: "Số Zalo", sWa: "Số WhatsApp", sAddr: "Địa chỉ shop", sOpen: "Giờ mở cửa", sClose: "Giờ đóng cửa", sDays: "Ngày mở cửa", sIg: "Instagram (không gõ @)", sIgStock: "Đồ có sẵn", sIgOrder: "Order hộ", sIgRental: "Cho thuê",
+    sPay: "Thanh toán trong nước", sBank: "Ngân hàng (VietQR)", sNoBank: "Chưa chọn", sAcct: "Số tài khoản", sAcctName: "Tên chủ tài khoản (không dấu)", sDeposit: "Tỷ lệ cọc order (%)",
+    sIntl: "Thanh toán quốc tế", sPaypal: "Tài khoản PayPal (email hoặc link)", sZelle: "Zelle (email hoặc SĐT)", sRate: "Tỷ giá (số ₫ cho 1 USD)", sFee: "Phí cộng thêm vào giá để shop nhận đủ tiền", sPpPct: "PayPal: phí %", sPpFix: "PayPal: phí cố định (USD)", sZePct: "Zelle: phí %", sZeFix: "Zelle: phí cố định (USD)",
+    sSave: "Lưu cài đặt", sSaved: "Đã lưu cài đặt. Web cập nhật sau vài giây.", sErr: "Chưa lưu được cài đặt. Bạn chạy file SQL mới trong Supabase trước nhé.", sDayN: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"], email: "Email", pass: "Mật khẩu", login: "Đăng nhập", logout: "Đăng xuất", bad: "Sai email hoặc mật khẩu.", notAdmin: "Tài khoản này chưa được sửa shop. Nhờ Vu thêm email của bạn.",
     products: "Sản phẩm", posts: "Bài Instagram", add: "Thêm sản phẩm", empty: "Chưa có gì.", sold: "Đã bán", edit: "Sửa", save: "Lưu", cancel: "Hủy", del: "Xóa", sure: "Xóa hẳn mục này?",
     photos: "Ảnh (ảnh đầu là ảnh bìa, tối đa 10)", addPhoto: "Thêm ảnh", name: "Tên", brand: "Hãng", cat: "Loại", kind: "Kiểu (không bắt buộc)", price: "Giá (VND, để trống = hỏi giá)", size: "Size (giày: 37, 37.5, 38)", grade: "Tình trạng (từ 1 đến 10)", isSold: "Đã bán", noteEn: "Mô tả tiếng Anh", noteVi: "Mô tả tiếng Việt",
     needName: "Bạn nhập tên nhé.", saved: "Đã lưu.", saving: "Đang lưu…", line: "Hàng chạy nào", lineVw: "Vivienne Westwood", lineAs: "Anna Sui", lineNone: "Chưa chọn (ẩn)", link: "Link bài Instagram", caption: "Chú thích (không bắt buộc)", date: "Ngày (không bắt buộc)", addPost: "Thêm bài", cover: "bìa",
@@ -94,7 +99,7 @@ function shrink(file) {
 }
 
 /* ---------- screens ---------- */
-var view = "products", st = { products: [], posts: [], draft: null, msg: "", err: false, busy: false, sel: {}, bulk: false };
+var view = "products", st = { orders: [], ordersErr: false, settings: null, open: null, products: [], posts: [], draft: null, msg: "", err: false, busy: false, sel: {}, bulk: false };
 function selIds() { return Object.keys(st.sel).filter(function (k) { return st.sel[k]; }); }
 function rowsOf() { return view === "products" ? st.products : st.posts; }
 function selBar(rows) {
@@ -117,14 +122,55 @@ function bulkForm() {
   }
   return '<form class="card" id="bform"><b>' + t("bulkTitle", { n: n }) + '</b><p style="color:var(--mute);margin:6px 0 0">' + t("bulkHint") + '</p>' + f + '<div class="bar"><button class="pri"' + (st.busy ? " disabled" : "") + ">" + t("apply") + '</button><button type="button" data-a="bulkcancel">' + t("cancel") + "</button></div></form>";
 }
+function newOrders() { return st.orders.filter(function (o) { return o.status === "new"; }).length; }
+function fmtVnd(n) { return "₫" + Math.round(+n || 0).toLocaleString("en-US"); }
+function ordersList() {
+  if (st.ordersErr) return '<div class="msg err">' + t("ordersErr") + "</div>";
+  if (!st.orders.length) return '<div class="card"><p>' + t("noOrders") + "</p></div>";
+  return st.orders.map(function (o) {
+    var d = o.data || {}, open = st.open === o.id, when = new Date(o.created_at).toLocaleString("vi-VN");
+    var h = '<div class="card" style="padding:12px"><button type="button" class="row" style="border:0;padding:0;margin:0;width:100%;text-align:left;background:transparent" data-a="oopen" data-id="' + o.id + '"><div class="t"><b>' + esc(d.name || "?") + (o.status === "new" ? ' <span class="sold">' + t("oNew") + "</span>" : "") + "</b><small>" + esc(when) + " · " + fmtVnd(d.due) + (d.usd ? " (US$" + d.usd + ")" : "") + " · " + esc(d.pay || "") + " · " + esc(d.delivery || "") + "</small></div></button>";
+    if (open) h += '<pre style="white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:8px;margin:10px 0">' + esc(d.text || "") + '</pre><div class="bar" style="margin-top:0"><button data-a="ocopy" data-id="' + o.id + '">' + t("oCopy") + '</button><button class="pri" data-a="ostatus" data-id="' + o.id + '">' + t(o.status === "new" ? "oMarkDone" : "oMarkNew") + '</button><button class="danger" data-a="odel" data-id="' + o.id + '">' + t("del") + "</button></div>";
+    return h + "</div>";
+  }).join("");
+}
+var BANKS = [["970436", "Vietcombank"], ["970415", "VietinBank"], ["970418", "BIDV"], ["970405", "Agribank"], ["970407", "Techcombank"], ["970422", "MB Bank"], ["970416", "ACB"], ["970432", "VPBank"], ["970423", "TPBank"], ["970403", "Sacombank"], ["970441", "VIB"], ["970437", "HDBank"], ["970443", "SHB"], ["970426", "MSB"], ["970448", "OCB"], ["970440", "SeABank"], ["970431", "Eximbank"], ["970449", "LPBank"], ["970428", "Nam A Bank"]];
+var SET_DEF = { address: "376 Lê Duẩn, Hà Nội", phone: "0898298282", whatsapp: "0963101723", zalo: "0898298282", hours: { days: [1, 2, 3, 4, 5, 6], open: "14:00", close: "20:00" }, ig: { stock: "dodendi.thrifting", order: "dodendi.order", rental: "anveris.rental" }, bank: { bin: "", account: "", name: "" }, deposit: 50, pay: { paypal: "", zelle: "" }, usdRate: 26000, fees: { paypalPct: 5, paypalFixed: 0.5, zellePct: 0, zelleFixed: 0 } };
+function setting(path) {
+  var o = st.settings, d = SET_DEF, v;
+  path.split(".").forEach(function (k) { o = o && o[k] != null ? o[k] : undefined; d = d[k]; });
+  v = o != null ? o : d; return v == null ? "" : v;
+}
+function inp(label, name, path, extra) { return "<div><label>" + t(label) + '</label><input name="' + name + '" value="' + esc(setting(path)) + '" ' + (extra || "") + "></div>"; }
+function settingsForm() {
+  var days = setting("hours.days"), ig = '<div class="grid2">' + inp("sIgStock", "igStock", "ig.stock") + inp("sIgOrder", "igOrder", "ig.order") + inp("sIgRental", "igRental", "ig.rental") + "</div>";
+  return '<form class="card" id="sform"><b>' + t("sShop") + '</b><div class="grid2">' + inp("sPhone", "phone", "phone") + inp("sZalo", "zalo", "zalo") + inp("sWa", "whatsapp", "whatsapp") + inp("sAddr", "address", "address") + inp("sOpen", "open", "hours.open") + inp("sClose", "close", "hours.close") + "</div>" +
+    "<label>" + t("sDays") + '</label><div class="bar" style="margin:0">' + t("sDayN").map(function (n, i) { return '<label class="check" style="margin:0"><input type="checkbox" name="day' + i + '"' + (days.indexOf(i) >= 0 ? " checked" : "") + "> " + n + "</label>"; }).join("") + "</div>" +
+    "<label>" + t("sIg") + "</label>" + ig +
+    '<hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><b>' + t("sPay") + '</b><div class="grid2"><div><label>' + t("sBank") + '</label><select name="bin"><option value="">' + t("sNoBank") + "</option>" + BANKS.map(function (b) { return '<option value="' + b[0] + '"' + (setting("bank.bin") === b[0] ? " selected" : "") + ">" + b[1] + "</option>"; }).join("") + "</select></div>" + inp("sAcct", "account", "bank.account", 'inputmode="numeric"') + inp("sAcctName", "bankName", "bank.name") + inp("sDeposit", "deposit", "deposit", 'inputmode="numeric"') + "</div>" +
+    '<hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><b>' + t("sIntl") + '</b><div class="grid2">' + inp("sPaypal", "paypal", "pay.paypal") + inp("sZelle", "zelle", "pay.zelle") + inp("sRate", "usdRate", "usdRate", 'inputmode="numeric"') + "</div>" +
+    "<label>" + t("sFee") + '</label><div class="grid2">' + inp("sPpPct", "paypalPct", "fees.paypalPct", 'inputmode="decimal"') + inp("sPpFix", "paypalFixed", "fees.paypalFixed", 'inputmode="decimal"') + inp("sZePct", "zellePct", "fees.zellePct", 'inputmode="decimal"') + inp("sZeFix", "zelleFixed", "fees.zelleFixed", 'inputmode="decimal"') + "</div>" +
+    '<div class="bar"><button class="pri"' + (st.busy ? " disabled" : "") + ">" + t("sSave") + "</button></div></form>";
+}
+function readSettings(f) {
+  var g = function (n) { return String(new FormData(f).get(n) || "").trim(); }, num = function (n) { var v = parseFloat(g(n).replace(",", ".")); return isFinite(v) && v >= 0 ? v : 0; };
+  var days = []; for (var i = 0; i < 7; i++) if (f.elements["day" + i].checked) days.push(i);
+  return { phone: g("phone"), zalo: g("zalo"), whatsapp: g("whatsapp"), address: g("address"), hours: { days: days, open: g("open"), close: g("close") },
+    ig: { stock: g("igStock").replace(/^@/, ""), order: g("igOrder").replace(/^@/, ""), rental: g("igRental").replace(/^@/, "") },
+    bank: { bin: g("bin"), account: g("account").replace(/\s/g, ""), name: g("bankName") }, deposit: Math.min(100, Math.round(num("deposit"))),
+    pay: { paypal: g("paypal"), zelle: g("zelle") }, usdRate: Math.round(num("usdRate")) || 26000,
+    fees: { paypalPct: num("paypalPct"), paypalFixed: num("paypalFixed"), zellePct: num("zellePct"), zelleFixed: num("zelleFixed") } };
+}
 function say(m, err) { st.msg = m; st.err = !!err; }
 function render() {
   $("#hSub").textContent = t("admin");
   $("#out").classList.toggle("hide", !session); $("#backup").classList.toggle("hide", !session); $("#out").textContent = t("logout");
   if (!session) return renderLogin();
-  var h = '<div class="tabs"><button data-v="products" aria-pressed="' + (view === "products") + '">' + t("products") + '</button><button data-v="posts" aria-pressed="' + (view === "posts") + '">' + t("posts") + "</button></div>";
+  var h = '<div class="tabs"><button data-v="products" aria-pressed="' + (view === "products") + '">' + t("products") + '</button><button data-v="posts" aria-pressed="' + (view === "posts") + '">' + t("posts") + '</button><button data-v="orders" aria-pressed="' + (view === "orders") + '">' + t("orders") + (newOrders() ? " (" + newOrders() + ")" : "") + '</button><button data-v="settings" aria-pressed="' + (view === "settings") + '">' + t("settings") + "</button></div>";
   if (st.msg) h += '<div class="msg' + (st.err ? " err" : "") + '">' + esc(st.msg) + "</div>";
-  if (st.draft) h += view === "products" ? productForm() : postForm();
+  if (view === "orders") h += ordersList();
+  else if (view === "settings") h += settingsForm();
+  else if (st.draft) h += view === "products" ? productForm() : postForm();
   else if (st.bulk && selIds().length) h += bulkForm();
   else h += (view === "products" ? productList() : postList()) + bulkBar();
   $("#app").innerHTML = h;
@@ -192,7 +238,7 @@ function checkAdmin() {
   return api("/rest/v1/rpc/is_admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }).then(function (ok) { if (ok !== true) throw new Error("not admin"); });
 }
 function load() {
-  return Promise.all([rest.list("products"), rest.list("posts")]).then(function (r) { st.products = r[0]; st.posts = r[1]; var keep = {}; rowsOf().forEach(function (x) { if (st.sel[x.id]) keep[x.id] = true; }); st.sel = keep; if (!selIds().length) st.bulk = false; render(); });
+  return Promise.all([rest.list("products"), rest.list("posts"), rest.list("orders").then(function (x) { st.ordersErr = false; return x; }, function () { st.ordersErr = true; return []; }), api("/rest/v1/settings?select=data&id=eq.shop").then(function (x) { return x && x[0] ? x[0].data : null; }, function () { return null; })]).then(function (r) { st.products = r[0]; st.posts = r[1]; st.orders = r[2]; st.settings = r[3]; var keep = {}; rowsOf().forEach(function (x) { if (st.sel[x.id]) keep[x.id] = true; }); st.sel = keep; if (!selIds().length) st.bulk = false; render(); });
 }
 function guard(p) { st.busy = true; return p.then(function (x) { st.busy = false; return x; }, function (e) { st.busy = false; say(t("fail") + (e.message || e), true); render(); throw e; }); }
 
@@ -212,6 +258,10 @@ document.addEventListener("click", function (ev) {
   if (a === "sold") { var q = st.products.filter(function (x) { return x.id === id; })[0]; var nd = Object.assign({}, q.data, { sold: !q.data.sold }); return guard(rest.upsert(id, nd)).then(load); }
   if (a === "delete") { if (!confirm(t("sure"))) return; return guard(rest.del("products", st.draft.id)).then(function () { st.draft = null; say(""); return load(); }); }
   if (a === "delpost") { if (!confirm(t("sure"))) return; return guard(rest.del("posts", id)).then(load); }
+  if (a === "oopen") { st.open = st.open === +id ? null : +id; return render(); }
+  if (a === "ocopy") { var oc = st.orders.filter(function (x) { return x.id === +id; })[0]; if (navigator.clipboard && oc) navigator.clipboard.writeText(oc.data.text || ""); say(t("copied")); return render(); }
+  if (a === "ostatus") { var os = st.orders.filter(function (x) { return x.id === +id; })[0]; return guard(api("/rest/v1/orders?id=eq." + id, { method: "PATCH", headers: { "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify({ status: os.status === "new" ? "done" : "new" }) })).then(load); }
+  if (a === "odel") { if (!confirm(t("sure"))) return; return guard(rest.del("orders", id)).then(function () { st.open = null; return load(); }); }
   if (a === "selnone") { st.sel = {}; st.bulk = false; return render(); }
   if (a === "bulkedit") { st.bulk = true; st.msg = ""; return render(); }
   if (a === "bulkcancel") { st.bulk = false; return render(); }
@@ -241,6 +291,10 @@ document.addEventListener("submit", function (ev) {
     return tokenCall({ email: String(fd.get("e")).trim(), password: String(fd.get("p")) }, "password").then(function () { return checkAdmin().then(null, function (e) { saveSession(null); throw new Error("denied"); }); }).then(function () { return load(); }).then(null, function (e) {
       saveSession(null); st.msg = e.message === "denied" ? t("notAdmin") : t("bad"); render();
     });
+  }
+  if (f.id === "sform") {
+    var data = readSettings(f);
+    return guard(api("/rest/v1/settings?on_conflict=id", { method: "POST", headers: { "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ id: "shop", data: data }) })).then(function () { st.settings = data; say(t("sSaved")); render(); }, function () { say(t("sErr"), true); render(); });
   }
   if (f.id === "bform") {
     var bf = new FormData(f), ids2 = selIds(), chosen = rowsOf().filter(function (x) { return st.sel[x.id]; }), job;
