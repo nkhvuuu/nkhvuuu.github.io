@@ -115,6 +115,11 @@ button.lnk{border:0;background:none;padding:0;cursor:pointer;font:inherit;text-a
 .h-mark{width:clamp(300px,36vw,500px);height:auto}
 .h-line{margin-top:4px;font:300 15px/1.4 var(--f-sans);color:var(--red-text);letter-spacing:.02em}
 .h-text{margin:22px auto 0;max-width:32ch;font:italic 400 clamp(19px,1.9vw,24px)/1.5 var(--f-fem);letter-spacing:.005em;font-variant-numeric:lining-nums;color:var(--ivory)}
+.h-ship{margin:16px auto 0;max-width:36ch;font:300 13.5px/1.55 var(--f-sans);color:var(--ivory-2);letter-spacing:.01em}
+.shipnote{margin:2px 0 0;font:300 13px var(--f-sans);color:var(--ivory-2)}
+.sumprev summary{cursor:pointer;font:300 13.5px var(--f-sans);color:var(--ivory-2);padding:6px 0}
+.sumprev .btn{margin-top:8px}
+.bagship{margin:0}
 .h-ctas{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:34px}
 @media (max-width:860px){
   .hero{padding:44px 0 64px}
@@ -603,6 +608,7 @@ dialog.drawer{margin:0 0 0 auto;height:100dvh;max-height:100dvh;width:min(440px,
       <p class="h-line" id="heroLine"></p>
       <p class="h-text" data-i18n="heroText"></p>
       <div class="h-ctas"><a class="btn solid" href="#shop" data-i18n="heroCta"></a><a class="btn" href="#preorder" data-i18n="heroCta2"></a></div>
+      <p class="h-ship" data-i18n="heroShip"></p>
     </div>
   </div>
 </section>
@@ -723,6 +729,7 @@ dialog.drawer{margin:0 0 0 auto;height:100dvh;max-height:100dvh;width:min(440px,
   <div class="dlg-head"><h2 id="bagTitle" data-i18n="bagH">Your bag</h2><button type="button" class="x" data-close="" data-i18n-aria="close" aria-label="Close">×</button></div>
   <div class="bag-list" id="bagList"></div>
   <div class="bag-foot">
+    <p class="hint bagship" data-i18n="bagShip"></p>
     <div class="line"><span data-i18n="subtotal">Subtotal</span><strong id="bagSub" class="num"></strong></div>
     <button type="button" class="btn solid wide" id="toCheckout" data-i18n="checkout">Checkout</button>
   </div>
@@ -738,7 +745,7 @@ dialog.drawer{margin:0 0 0 auto;height:100dvh;max-height:100dvh;width:min(440px,
 
 <dialog id="coDlg" class="dlg mid" aria-labelledby="coTitle">
   <div class="dlg-head"><h2 id="coTitle" data-i18n="coH">Checkout</h2><button type="button" class="x" data-close="" data-i18n-aria="close" aria-label="Close">×</button></div>
-  <ol class="stepper" id="stepper"><li data-i18n="st1">Details</li><li data-i18n="st2">Payment</li><li data-i18n="st3">Send order</li></ol>
+  <ol class="stepper" id="stepper"><li data-i18n="st1">Your details</li><li data-i18n="st2">Pay &amp; send</li></ol>
   <div class="dlg-pad" id="coBody"></div>
 </dialog>
 
@@ -795,6 +802,35 @@ var BANKS = [
 /* ---------- strings ---------- */
 var I18N = {
 en: {
+  copySummary: "Copy order",
+  sumDelivery: "Delivery",
+  sumPay: "Paying by",
+  toastSent: "Order copied. Paste it in the chat and send.",
+  copyAgain: "Copy again",
+  seeMsg: "See the message that gets copied",
+  sendBtn: "Send order on Instagram",
+  sendDQ: "One tap copies your order and opens our Instagram chat with @{h}. Paste it into the message box (press and hold, then Paste) and send. We'll reply with the shipping fee and total, then you pay.",
+  payPending: "We'll send our {m} details in chat as soon as you send your order.",
+  payNote: "Put your name in the payment note: {n}",
+  zelleNote: "Zelle works with US bank accounts only. If you're outside the US, please use PayPal.",
+  usdNote: "Approximate amount at ₫{r} per US$1. We'll confirm the exact amount in chat.",
+  amountItemsL: "Items total",
+  zlL: "Zelle email or phone",
+  ppL: "PayPal account",
+  pmS_zelle: "Zelle",
+  pmS_paypal: "PayPal",
+  pmS_bank: "bank transfer",
+  pm_zelle: "Zelle",
+  pm_paypal: "PayPal",
+  pm_bank: "Vietnam bank transfer (VietQR)",
+  payL: "How would you like to pay?",
+  cPriv: "We only use these details to process and ship your order.",
+  intlNote: "We ship worldwide. The courier fee depends on your country, and we'll confirm it in chat before you pay.",
+  cAddressIntl: "Full delivery address, with country",
+  cPhoneIntl: "Phone number, with country code",
+  shipNote: "Ships worldwide from Hanoi.",
+  bagShip: "We ship worldwide. You'll see the shipping details at checkout.",
+  heroShip: "We ship worldwide from Hanoi. Pay by PayPal, Zelle or Vietnamese bank transfer.",
   skip: "Skip to the shop", navShop: "Shop", navPre: "Pre-order", navVisit: "Visit", bag: "Bag",
   heroLine: "Secondhand & pre-order · Hanoi", heroText: "Pre-loved designer shoes, eyewear and little treasures, one of each.",
   heroCta: "Shop now", heroCta2: "Pre-order",
@@ -826,7 +862,7 @@ en: {
   g7: "Worn", gd7: "Noticeable flaws; see the description",
   kAddr: "address", kHours: "hours", kPhone: "phone", kPhoneZalo: "phone · zalo", kZalo: "zalo", kWA: "whatsapp", kStock: "in stock", kOrder: "pre-order", kRental: "rentals",
   maps: "Open in Maps", copyAddr: "Copy address", kTalk: "Get in touch", kInsta: "Instagram", call: "Call", openApp: "Open", closedDay: "Closed",
-  visitSub: "Drop by the shop, or message us first.", visitNote: "Every piece is one of a kind, so come and try things on.",
+  visitSub: "Drop by the shop, or message us first. We ship worldwide too.", visitNote: "Every piece is one of a kind, so come and try things on.",
   openUntil: "Open now, until {t}", opensToday: "Closed, opens at {t}", opensTomorrow: "Closed, opens tomorrow at {t}", opensOn: "Closed, opens {d} at {t}",
   feedLead: "We take pre-orders on Instagram only.",
   feedText: "Each piece goes up on @{h} with photos, size and price. Message us there to order.",
@@ -835,33 +871,28 @@ en: {
   postOrder: "Order on Instagram", postPrev: "Previous post", postNext: "Next post", photoPrev: "Previous photo", photoNext: "Next photo", photoN: "Photo {n} of {m}", photoGo: "Go to photo {n}", postN: "{n} / {m}",
   polCondT: "Condition, out of 10", gradeTh: "Grade", condTh: "Condition", meanTh: "What it means",
   polSizeT: "Size guide", sizeGuideNote: "Approximate; fit varies by brand, so ask us for the insole length. Tap a size to see pieces in it.", sgCM: "cm", shopSize: "Show size {s}",
-  polShipT: "Shipping", polShipD: "Pick-up at the shop and standard shipping anywhere in Vietnam are free. Express and international shipping depend on the courier, so message us for the fee.",
-  polPayT: "Payment", polPayD: "Bank transfer before we ship; no cash on delivery. A piece is yours once the transfer lands.",
+  polShipT: "Shipping worldwide", polShipD: "We ship worldwide from Hanoi. Pick-up at the shop and standard shipping in Vietnam are free. Express and international shipping are charged at the courier's rate, which depends on your country and the weight of your order. Send us your order and we'll reply with the exact fee before you pay.",
+  polPayT: "Payment", polPayD: "In Vietnam, pay by bank transfer (VietQR). Anywhere else, pay with PayPal or Zelle. We ship once your payment arrives; no cash on delivery.",
   polAuthT: "Authentic, no returns", polAuthD: "Everything is authentic. Check the photos, size and grade, and ask us anything first: all sales are final.",
-  polPrivT: "Your details", polPrivD: "Checkout keeps your name, phone and address in your browser and sends nothing by itself. We only get what you message us on {ch}, and use it only to process and ship your order.",
+  polPrivT: "Your details", polPrivD: "The details you type at checkout stay on your device until you send your order to us on {ch}. We only use them to process and ship your order.",
   bagH: "Your bag", bagEmpty: "Your bag is empty.", remove: "Remove", subtotal: "Subtotal", checkout: "Checkout",
-  coH: "Checkout", st1: "Details", st2: "Payment", st3: "Send order",
-  cName: "Full name", cPhone: "Phone", cIG: "Instagram (optional)", cDelivery: "Delivery",
-  d_pickup: "Pick up at the shop", d_vn: "Standard shipping in Vietnam (a few days)", d_express: "Express delivery", d_intl: "International shipping",
-  free: "Free", quoted: "Message us for the fee", cAddress: "Delivery address", cNote: "Note (optional)",
-  cConsent: "I agree to send these details to Dodendi so the shop can process and ship this order.",
-  cRemember: "Remember my details on this device",
-  errName: "Enter your name.", errPhone: "Enter a phone number we can reach you on.", errAddress: "Enter the delivery address.", errConsent: "Tick the box to continue.",
-  next: "Continue to payment", back: "Back",
-  lStock: "In-stock pieces", lShip: "Shipping", lDeposit: "Pre-order deposit ({p}%)", lDue: "Transfer now", lLater: "Due when pre-orders arrive",
+  coH: "Checkout", st1: "Your details", st2: "Pay & send",
+  cName: "Full name", cPhone: "Phone number", cDelivery: "How should we get it to you?",
+  d_pickup: "Pick up at the shop in Hanoi", d_vn: "Ship in Vietnam (a few days)", d_express: "Express in Vietnam", d_intl: "Ship worldwide",
+  free: "Free", quoted: "Fee confirmed in chat", cAddress: "Delivery address", cNote: "Note (optional)",
+  errName: "Enter your name.", errPhone: "Enter a phone number we can reach you on.", errAddress: "Enter the delivery address.",
+  next: "Continue", back: "Back",
+  lStock: "In-stock pieces", lShip: "Shipping", lDeposit: "Pre-order deposit ({p}%)", lDue: "To pay now", lLater: "Due when pre-orders arrive",
   preShipLater: "Pre-ordered pieces are sent the way you choose once they arrive in Hanoi.",
-  quoteNote: "{d}: fee not included. We'll quote the courier's fee in chat and you add it to your transfer.",
-  orderCode: "Order code",
+  quoteNote: "Shipping isn't included yet. Send your order first, we'll reply with the shipping fee and your final total, and then you pay.",
   payScan: "Scan with any Vietnamese banking app. The amount and transfer note fill in for you.",
   bankL: "Bank", acctL: "Account number", acctNameL: "Account name", amountL: "Amount", memoL: "Transfer note",
   checkName: "Before you confirm, check that your banking app shows the account name {n}. If it shows anything else, stop and message us.",
   bankPending: "We'll send our bank details in chat. Send your order in the next step and we'll reply with where to transfer {a}.",
-  paidNext: "I've transferred, next", next2: "Continue",
   sendT: "Send us your order",
-  sendD: "Copy the summary and send it to us on {ch}, with a screenshot of your transfer. We'll confirm and reserve your pieces.",
-  copySummary: "Copy order summary", openIG: "Open Instagram @{h}", openWA: "Open WhatsApp", openZalo: "Open Zalo", doneClear: "Done, clear my bag",
+  sendD: "One tap copies your order and opens our Instagram chat with @{h}. Paste it into the message box (press and hold, then Paste) and send. Then add a screenshot of your payment.", doneClear: "Done, clear my bag",
   toastAdded: "Added to your bag", toastRemoved: "Removed from your bag", toastCleared: "Thank you! Your bag is cleared.",
-  sumHello: "Hi Dodendi! I'd like to place order {c}:", sumName: "Name", sumPhone: "Phone", sumIG: "Instagram", sumAddr: "Address", sumNote: "Note",
+  sumHello: "Hi Dodendi! I'd like to order:", sumName: "Name", sumPhone: "Phone", sumIG: "Instagram", sumAddr: "Address", sumNote: "Note",
   orW: " or ",
   admin: "Shop admin", adProducts: "Products", adSettings: "Settings", adAdd: "Add a product", adEdit: "Edit product",
   adPhotos: "Photos (up to 4)", adPhotosHint: "Photos are resized to 900 px and their location data is removed.", adPhotoErr: "Couldn't read that photo. Try a JPG or PNG.",
@@ -885,15 +916,43 @@ en: {
   adFeedNeedImg: "Choose at least one photo first.", adFeedNeedUrl: "Paste the link of an Instagram post.", adFeedEmpty: "No posts yet, so the site shows quiet placeholder tiles that link to @{h}.", adFeedAdded: "Added. Publish to put it live.", adFeedCount: "{n} of {m} posts.", adFeedPhotos: "{n} photos"
 },
 vi: {
+  sumDelivery: "Nhận hàng",
+  sumPay: "Thanh toán bằng",
+  toastSent: "Đã sao chép đơn hàng. Bạn dán vào khung chat và gửi nhé.",
+  copyAgain: "Sao chép lại",
+  seeMsg: "Xem tin nhắn sẽ được sao chép",
+  sendBtn: "Gửi đơn qua Instagram",
+  sendDQ: "Chỉ cần bấm một lần: đơn hàng được sao chép và mở sẵn khung chat Instagram với @{h}. Bạn dán vào ô tin nhắn (giữ ngón tay, chọn Dán) rồi gửi. Shop sẽ báo phí ship và tổng tiền, sau đó bạn mới thanh toán.",
+  payPending: "Ngay khi bạn gửi đơn, shop sẽ nhắn thông tin {m} qua chat.",
+  payNote: "Bạn ghi tên của mình vào nội dung thanh toán: {n}",
+  zelleNote: "Zelle chỉ dùng được với tài khoản ngân hàng ở Mỹ. Nếu bạn ở ngoài nước Mỹ, bạn dùng PayPal nhé.",
+  usdNote: "Số tiền quy đổi tham khảo theo tỷ giá {r}₫ = 1 USD. Shop sẽ xác nhận số tiền chính xác qua chat.",
+  amountItemsL: "Tiền hàng",
+  zlL: "Email hoặc SĐT Zelle",
+  ppL: "Tài khoản PayPal",
+  pmS_zelle: "Zelle",
+  pmS_paypal: "PayPal",
+  pmS_bank: "chuyển khoản",
+  pm_zelle: "Zelle",
+  pm_paypal: "PayPal",
+  pm_bank: "Chuyển khoản ngân hàng VN (VietQR)",
+  payL: "Bạn muốn thanh toán bằng cách nào?",
+  cPriv: "Shop chỉ dùng các thông tin này để xử lý và giao đơn.",
+  intlNote: "Shop ship toàn thế giới. Phí vận chuyển tùy quốc gia của bạn, shop sẽ báo qua chat trước khi bạn thanh toán.",
+  cAddressIntl: "Địa chỉ nhận hàng đầy đủ, kèm quốc gia",
+  cPhoneIntl: "Số điện thoại, kèm mã quốc gia",
+  shipNote: "Ship toàn thế giới từ Hà Nội.",
+  bagShip: "Shop ship toàn thế giới. Thông tin giao hàng sẽ hiện ở bước thanh toán.",
+  heroShip: "Shop ship đi toàn thế giới từ Hà Nội. Nhận thanh toán qua PayPal, Zelle hoặc chuyển khoản ngân hàng Việt Nam.",
   skip: "Đến phần sản phẩm", navShop: "Sản phẩm", navPre: "Order hộ", navVisit: "Ghé shop", bag: "Giỏ",
-  heroLine: "Secondhand & order hộ · Hà Nội", heroText: "Giày, kính và phụ kiện hiệu 2hand, mỗi món chỉ có một.",
+  heroLine: "Secondhand & order hộ · Hà Nội", heroText: "Giày, kính và phụ kiện hàng hiệu 2hand, mỗi món chỉ có một.",
   heroCta: "Xem đồ", heroCta2: "Order hộ",
-  copy: "sao chép", copied: "Đã sao chép", copyFail: "Không tự sao chép được. Nội dung đã bôi đen sẵn, bạn tự sao chép nhé.",
+  copy: "sao chép", copied: "Đã sao chép", copyFail: "Không tự sao chép được. Nội dung đã được chọn sẵn, bạn giữ lại để sao chép nhé.",
   sampleNote: "Đây là sản phẩm mẫu, đồ thật sắp lên shop nhé.",
   availL: "Loại hàng", availAll: "Tất cả", availStock: "Có sẵn", availPre: "Order",
   catAll: "Tất cả", cat_shoes: "Giày", cat_eyewear: "Kính", cat_watches: "Đồng hồ", cat_jewellery: "Trang sức", cat_bags: "Túi", cat_clothing: "Quần áo", cat_accessories: "Phụ kiện",
-  ty_heels: "Cao gót", ty_flats: "Búp bê", ty_mules: "Guốc", ty_boots: "Bốt", ty_maryjanes: "Mary Jane", ty_sneakers: "Sneaker", ty_sandals: "Sandal",
-  ty_sunglasses: "Kính râm", ty_frames: "Gọng kính", ty_necklaces: "Vòng cổ", ty_earrings: "Khuyên tai", ty_rings: "Nhẫn", ty_bracelets: "Vòng tay", ty_brooches: "Ghim cài",
+  ty_heels: "Cao gót", ty_flats: "Búp bê", ty_mules: "Dép mule", ty_boots: "Bốt", ty_maryjanes: "Mary Jane", ty_sneakers: "Sneaker", ty_sandals: "Sandal",
+  ty_sunglasses: "Kính mát", ty_frames: "Gọng kính", ty_necklaces: "Vòng cổ", ty_earrings: "Khuyên tai", ty_rings: "Nhẫn", ty_bracelets: "Vòng tay", ty_brooches: "Ghim cài áo",
   ty_handbags: "Túi xách", ty_crossbody: "Túi đeo chéo", ty_wallets: "Ví", ty_tops: "Áo", ty_dresses: "Váy", ty_skirts: "Chân váy", ty_outerwear: "Áo khoác",
   ty_hair: "Phụ kiện tóc", ty_belts: "Thắt lưng", ty_other: "Khác",
   typeL: "Kiểu", typeAll: "Tất cả", brandL: "Hãng", brandAll: "Tất cả hãng", sizeL: "Size", sizeAll: "Tất cả", sizeGuideLink: "Bảng size",
@@ -907,51 +966,46 @@ vi: {
   badgeStock: "Có sẵn", badgePre: "Order",
   depositLine: "Cọc {p}% trước, phần còn lại thanh toán khi hàng về.",
   detailCat: "Danh mục", detailAvail: "Loại hàng", close: "Đóng",
-  askIG: "Hỏi qua Instagram", askWA: "Hỏi qua WhatsApp", askMsg: "Chào Dodendi! Món {n}{s} còn không ạ?", askSize: " (size {s})", askHint: "Đã sao chép câu hỏi, bạn dán vào chat nhé.",
-  g10: "Mới", gd10: "Chưa dùng, hoặc chỉ thử",
+  askIG: "Hỏi qua Instagram", askWA: "Hỏi qua WhatsApp", askMsg: "Chào Dodendi! Món {n}{s} còn hàng không ạ?", askSize: " (size {s})", askHint: "Đã sao chép tin nhắn, bạn dán vào khung chat để gửi nhé.",
+  g10: "Mới", gd10: "Chưa dùng, hoặc chỉ mang thử",
   "g9.5": "Như mới", "gd9.5": "Không thấy dấu vết sử dụng",
-  g9: "Rất đẹp", gd9: "Dấu vết sử dụng rất nhẹ",
-  "g8.5": "Tốt", "gd8.5": "Dùng nhẹ, lỗi (nếu có) được ghi rõ",
-  g8: "Khá", gd8: "Thấy rõ dấu vết dùng, giá tương ứng",
-  g7: "Cũ", gd7: "Có lỗi rõ, xem mô tả",
+  g9: "Rất đẹp", gd9: "Có dấu hiệu sử dụng rất nhẹ",
+  "g8.5": "Tốt", "gd8.5": "Dùng nhẹ, nếu có lỗi shop đều ghi rõ",
+  g8: "Khá", gd8: "Thấy rõ dấu hiệu sử dụng, giá đã được điều chỉnh",
+  g7: "Cũ", gd7: "Có lỗi dễ thấy, bạn xem kỹ phần mô tả nhé",
   kAddr: "địa chỉ", kHours: "giờ mở", kPhone: "điện thoại", kPhoneZalo: "điện thoại · zalo", kZalo: "zalo", kWA: "whatsapp", kStock: "đồ có sẵn", kOrder: "order hộ", kRental: "cho thuê",
   maps: "Xem bản đồ", copyAddr: "Sao chép địa chỉ", kTalk: "Liên hệ", kInsta: "Instagram", call: "Gọi", openApp: "Mở", closedDay: "Nghỉ",
-  visitSub: "Ghé shop, hoặc nhắn trước cho shop nhé.", visitNote: "Mỗi món chỉ có một, bạn cứ ghé thử thoải mái nhé.",
+  visitSub: "Bạn ghé shop hoặc nhắn trước cho shop nhé. Shop cũng ship toàn thế giới.", visitNote: "Mỗi món chỉ có một, bạn cứ ghé thử thoải mái nhé.",
   openUntil: "Đang mở, đến {t}", opensToday: "Đã đóng cửa, mở lại lúc {t}", opensTomorrow: "Đã đóng cửa, mai mở lúc {t}", opensOn: "Đã đóng cửa, mở lại {d} lúc {t}",
   feedLead: "Đồ order hộ chỉ nhận qua Instagram.",
-  feedText: "Mỗi món đều lên @{h} kèm ảnh, size và giá. Bạn nhắn shop ở đó để chốt order nhé.",
+  feedText: "Món nào cũng được đăng trên @{h} kèm ảnh, size và giá. Bạn nhắn shop ở đó để chốt order nhé.",
   feedBtn: "Mở @{h}", feedAlt: "Bài đăng trên @{h}", feedStrip: "Bài mới trên @{h}",
   feedSoon: "Sắp có", feedSoonLbl: "Chưa có bài đăng. Mở @{h} trên Instagram", feedOpenN: "Mở bài {n}", feedView: "Xem bài",
   postOrder: "Order trên Instagram", postPrev: "Bài trước", postNext: "Bài sau", photoPrev: "Ảnh trước", photoNext: "Ảnh sau", photoN: "Ảnh {n}/{m}", photoGo: "Đến ảnh {n}", postN: "{n} / {m}",
   polCondT: "Tình trạng, thang 10", gradeTh: "Điểm", condTh: "Tình trạng", meanTh: "Ý nghĩa",
-  polSizeT: "Bảng size", sizeGuideNote: "Chỉ để tham khảo, mỗi hãng một form nên bạn hỏi shop chiều dài lót giày nhé. Chạm vào size để xem các món size đó.", sgCM: "cm", shopSize: "Xem size {s}",
-  polShipT: "Vận chuyển", polShipD: "Nhận tại shop và giao tiêu chuẩn toàn quốc đều miễn phí. Giao hỏa tốc và ship quốc tế tùy đơn vị vận chuyển, bạn nhắn shop để shop báo phí nhé.",
-  polPayT: "Thanh toán", polPayD: "Chuyển khoản trước khi gửi hàng, shop không nhận COD. Món đồ là của bạn khi tiền đã vào tài khoản shop.",
-  polAuthT: "Hàng auth, không đổi trả", polAuthD: "Shop chỉ bán hàng auth. Bạn xem kỹ ảnh, size, tình trạng và cứ hỏi shop trước khi chốt nhé, đã mua thì không đổi trả.",
-  polPrivT: "Thông tin của bạn", polPrivD: "Trang thanh toán chỉ lưu tên, số điện thoại và địa chỉ trong trình duyệt của bạn, không tự gửi đi đâu. Shop chỉ nhận những gì bạn tự nhắn qua {ch}, và chỉ dùng để xử lý và giao đơn.",
+  polSizeT: "Bảng size", sizeGuideNote: "Bảng này chỉ để tham khảo vì mỗi hãng lên form một khác. Bạn hỏi shop chiều dài lót giày để chọn size cho chuẩn nhé. Chạm vào size để xem các món size đó.", sgCM: "cm", shopSize: "Xem size {s}",
+  polShipT: "Ship toàn thế giới", polShipD: "Shop ship đi toàn thế giới từ Hà Nội. Nhận tại shop và giao tiêu chuẩn trong nước đều miễn phí. Giao hỏa tốc và ship quốc tế tính theo giá của đơn vị vận chuyển, tùy quốc gia và cân nặng của đơn hàng. Bạn gửi đơn cho shop, shop sẽ báo phí chính xác trước khi bạn thanh toán.",
+  polPayT: "Thanh toán", polPayD: "Ở Việt Nam bạn chuyển khoản ngân hàng (VietQR), ở nước ngoài bạn thanh toán qua PayPal hoặc Zelle. Shop gửi hàng sau khi nhận được tiền, không nhận COD.",
+  polAuthT: "Hàng auth, không đổi trả", polAuthD: "Mọi sản phẩm đều là hàng auth. Bạn xem kỹ ảnh, size, tình trạng và cứ hỏi shop thoải mái trước khi chốt nhé, vì shop không nhận đổi trả.",
+  polPrivT: "Thông tin của bạn", polPrivD: "Thông tin bạn nhập ở bước thanh toán chỉ nằm trên thiết bị của bạn cho đến khi bạn gửi đơn cho shop qua {ch}. Shop chỉ dùng chúng để xử lý và giao đơn.",
   bagH: "Giỏ hàng", bagEmpty: "Giỏ hàng đang trống.", remove: "Xóa", subtotal: "Tạm tính", checkout: "Thanh toán",
-  coH: "Thanh toán", st1: "Thông tin", st2: "Chuyển khoản", st3: "Gửi đơn",
-  cName: "Họ và tên", cPhone: "Số điện thoại", cIG: "Instagram (không bắt buộc)", cDelivery: "Nhận hàng",
-  d_pickup: "Nhận tại shop", d_vn: "Giao tiêu chuẩn toàn quốc (vài ngày)", d_express: "Giao hỏa tốc", d_intl: "Ship quốc tế",
-  free: "Miễn phí", quoted: "Nhắn shop để báo phí", cAddress: "Địa chỉ nhận hàng", cNote: "Ghi chú (không bắt buộc)",
-  cConsent: "Mình đồng ý gửi các thông tin này cho Dodendi để shop xử lý và giao đơn.",
-  cRemember: "Nhớ thông tin của mình trên thiết bị này",
-  errName: "Bạn nhập họ tên nhé.", errPhone: "Bạn nhập số điện thoại để shop liên hệ nhé.", errAddress: "Bạn nhập địa chỉ nhận hàng nhé.", errConsent: "Bạn tích vào ô đồng ý để tiếp tục nhé.",
-  next: "Tiếp tục thanh toán", back: "Quay lại",
-  lStock: "Đồ có sẵn", lShip: "Phí ship", lDeposit: "Cọc order ({p}%)", lDue: "Chuyển khoản ngay", lLater: "Trả khi hàng order về",
-  preShipLater: "Đồ order sẽ được gửi theo cách bạn chọn khi hàng về Hà Nội.",
-  quoteNote: "{d}: chưa gồm phí. Shop sẽ báo phí trong chat, bạn chuyển thêm khoản này nhé.",
-  orderCode: "Mã đơn",
-  payScan: "Quét bằng app ngân hàng bất kỳ. Số tiền và nội dung chuyển khoản được điền sẵn.",
+  coH: "Thanh toán", st1: "Thông tin của bạn", st2: "Thanh toán & gửi đơn",
+  cName: "Họ và tên", cPhone: "Số điện thoại", cDelivery: "Bạn muốn nhận hàng thế nào?",
+  d_pickup: "Nhận tại shop ở Hà Nội", d_vn: "Ship trong nước (vài ngày)", d_express: "Giao hỏa tốc trong nước", d_intl: "Ship quốc tế",
+  free: "Miễn phí", quoted: "Shop báo phí qua chat", cAddress: "Địa chỉ nhận hàng", cNote: "Ghi chú (không bắt buộc)",
+  errName: "Bạn nhập họ tên nhé.", errPhone: "Bạn nhập số điện thoại để shop liên hệ nhé.", errAddress: "Bạn nhập địa chỉ nhận hàng nhé.",
+  next: "Tiếp tục", back: "Quay lại",
+  lStock: "Đồ có sẵn", lShip: "Phí ship", lDeposit: "Cọc order ({p}%)", lDue: "Cần thanh toán ngay", lLater: "Trả khi hàng order về",
+  preShipLater: "Đồ order sẽ được gửi theo cách bạn chọn sau khi hàng về đến Hà Nội.",
+  quoteNote: "Chưa gồm phí ship. Bạn gửi đơn cho shop trước, shop sẽ báo phí ship và tổng tiền cuối cùng, sau đó bạn mới thanh toán.",
+  payScan: "Quét mã bằng app ngân hàng bất kỳ. Số tiền và nội dung chuyển khoản đã được điền sẵn.",
   bankL: "Ngân hàng", acctL: "Số tài khoản", acctNameL: "Chủ tài khoản", amountL: "Số tiền", memoL: "Nội dung chuyển khoản",
   checkName: "Trước khi xác nhận, bạn kiểm tra xem app ngân hàng có hiện đúng tên tài khoản {n} không. Nếu khác, bạn dừng lại và nhắn shop nhé.",
   bankPending: "Shop sẽ gửi thông tin chuyển khoản qua chat. Bạn gửi đơn ở bước sau, shop sẽ nhắn số tài khoản để bạn chuyển {a}.",
-  paidNext: "Đã chuyển khoản, tiếp tục", next2: "Tiếp tục",
   sendT: "Gửi đơn cho shop",
-  sendD: "Sao chép tóm tắt đơn và gửi cho shop qua {ch}, kèm ảnh chụp chuyển khoản. Shop sẽ xác nhận và giữ đồ cho bạn.",
-  copySummary: "Sao chép tóm tắt đơn", openIG: "Mở Instagram @{h}", openWA: "Mở WhatsApp", openZalo: "Mở Zalo", doneClear: "Xong, làm trống giỏ",
+  sendD: "Chỉ cần bấm một lần: đơn hàng được sao chép và mở sẵn khung chat Instagram với @{h}. Bạn dán vào ô tin nhắn (giữ ngón tay, chọn Dán) rồi gửi, sau đó gửi thêm ảnh chụp màn hình thanh toán nhé.", doneClear: "Xong, làm trống giỏ",
   toastAdded: "Đã thêm vào giỏ", toastRemoved: "Đã xóa khỏi giỏ", toastCleared: "Cảm ơn bạn! Đã làm trống giỏ.",
-  sumHello: "Chào Dodendi! Mình chốt đơn {c}:", sumName: "Tên", sumPhone: "SĐT", sumIG: "Instagram", sumAddr: "Địa chỉ", sumNote: "Ghi chú",
+  sumHello: "Chào Dodendi! Mình muốn đặt:", sumName: "Tên", sumPhone: "SĐT", sumIG: "Instagram", sumAddr: "Địa chỉ", sumNote: "Ghi chú",
   orW: " hoặc ",
   admin: "Quản lý shop", adProducts: "Sản phẩm", adSettings: "Cài đặt", adAdd: "Thêm sản phẩm", adEdit: "Sửa sản phẩm",
   adPhotos: "Ảnh (tối đa 4)", adPhotosHint: "Ảnh được thu nhỏ về 900 px và xóa dữ liệu vị trí.", adPhotoErr: "Không đọc được ảnh này. Bạn thử ảnh JPG hoặc PNG nhé.",
@@ -1000,6 +1054,7 @@ var DEF = {
   hours: { days: [1, 2, 3, 4, 5, 6], open: "14:00", close: "20:00" },
   ig: { stock: "dodendi.thrifting", order: "dodendi.order", rental: "anveris.rental" },
   bank: { bin: "", account: "", name: "" }, deposit: 50,
+  pay: { paypal: "", zelle: "" }, usdRate: 26000,
   cloud: { url: "", key: "" }
 };
 S.settings = S.settings || {};
@@ -1553,6 +1608,7 @@ function renderDetail(idx) {
       '<div class="dacts">' + addBtn(p, "solid wide") +
       '<div class="asks"><a class="btn' + (askPrice(p) && !p.sold ? " solid" : "") + '" data-ask="' + esc(p.id) + '" href="https://ig.me/m/' + encodeURIComponent(handle) + '"' + ext + ">" + esc(t("askIG")) + "</a>" +
       (ST.whatsapp ? '<a class="btn" data-ask="' + esc(p.id) + '" href="' + waURL(ST.whatsapp) + '"' + ext + ">" + esc(t("askWA")) + "</a>" : "") + "</div>" +
+      (p.sold ? "" : '<p class="shipnote">' + esc(t("shipNote")) + "</p>") +
       (IG_POST.test(p.ig || "") ? '<a class="iglink lnk" href="' + esc(p.ig) + '"' + ext + ">" + esc(t("viewIG")) + '<span aria-hidden="true"> ↗</span></a>' : "") + "</div>" +
     "</div>";
   $("#detailDlg").setAttribute("aria-label", p.brand + " " + p.name);
@@ -1560,17 +1616,8 @@ function renderDetail(idx) {
 function openDetail(id) { detailId = id; renderDetail(0); openDlg("detailDlg"); }
 
 /* ---------- checkout ---------- */
-var co = { step: 1, delivery: "pickup", name: "", phone: "", ig: "", address: "", note: "", code: "", consent: false, remember: false };
-try {
-  var savedCo = JSON.parse(LS.get("dd-details") || "null");
-  if (savedCo) { co.remember = true; ["name", "phone", "ig", "address", "delivery"].forEach(function (k) { if (savedCo[k]) co[k] = savedCo[k]; }); }
-} catch (e) {}
-if (co.delivery === "hanoi") co.delivery = "vn";
-if (DELIVERY.indexOf(co.delivery) < 0) co.delivery = "pickup";
-function saveDetails() {
-  if (co.remember) LS.set("dd-details", JSON.stringify({ name: co.name, phone: co.phone, ig: co.ig, address: co.address, delivery: co.delivery }));
-  else LS.del("dd-details");
-}
+var co = { step: 1, delivery: "pickup", name: "", phone: "", address: "", note: "", pay: "" };
+LS.del("dd-details");   /* older versions remembered the customer's details; this one keeps nothing */
 function quotedDelivery(d) { return d === "express" || d === "intl"; }
 function totals() {
   var items = bagItems();
@@ -1588,17 +1635,12 @@ function sumLines(T) {
   if (T.stock.length) h += '<div class="line"><span class="muted">' + esc(t("lStock")) + "</span><span>" + money(T.stockSub) + "</span></div>";
   h += '<div class="line"><span class="muted">' + esc(t("lShip")) + "</span><span>" + esc(T.shipQuoted ? t("quoted") : t("free")) + "</span></div>";
   if (T.pre.length) h += '<div class="line"><span class="muted">' + esc(t("lDeposit")) + "</span><span>" + money(T.deposit) + "</span></div>";
-  h += '<div class="line total"><span>' + esc(t("lDue")) + "</span><span>" + money(T.due) + "</span></div>";
+  h += '<div class="line total"><span>' + esc(t(T.shipQuoted ? "amountItemsL" : "lDue")) + "</span><span>" + money(T.due) + "</span></div>";
   if (T.pre.length && T.later > 0) h += '<div class="line"><span class="muted">' + esc(t("lLater")) + '</span><span class="muted">' + money(T.later) + "</span></div>";
   return h;
 }
 function stepper() {
   $$("#stepper li").forEach(function (li, i) { li.classList.toggle("on", i + 1 === co.step); li.classList.toggle("done", i + 1 < co.step); });
-}
-function newCode() {
-  var abc = "ABCDEFGHJKMNPQRSTUVWXYZ23456789", r = "";
-  for (var i = 0; i < 3; i++) r += abc.charAt(Math.floor(Math.random() * abc.length));
-  return "DD" + hanoiNow().ymd + r;
 }
 function kv(label, value, copyVal) {
   var c = copyVal ? '<button type="button" class="mini" data-copy="' + esc(copyVal === true ? value : copyVal) + '">' + esc(t("copy")) + "</button>" : "<span></span>";
@@ -1606,59 +1648,76 @@ function kv(label, value, copyVal) {
 }
 function notesFor(T) {
   var n = [];
-  if (T.shipQuoted) n.push(t("quoteNote", { d: t("d_" + co.delivery) }));
+  if (T.shipQuoted) n.push(t("quoteNote"));
   if (T.pre.length) n.push(t("preShipLater"));
   return n;
 }
+/* the customer pays in dong by VietQR, or in dollars by PayPal or Zelle; abroad the dollar methods come first */
+function payOrder() { return co.delivery === "intl" ? ["paypal", "zelle", "bank"] : ["bank", "paypal", "zelle"]; }
+function payMemo() {
+  var n = plain(co.name).replace(/[^A-Za-z0-9 ]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
+  return ("DODENDI " + n).trim().slice(0, 25);
+}
+function usdText(vnd) {
+  var r = Number(ST.usdRate) || 0;
+  return r > 0 && vnd > 0 ? "US$" + (Math.ceil(vnd / r * 100) / 100).toFixed(2) : "";
+}
+function payBox(T) {
+  var m = co.pay, h = "";
+  if (m === "bank") {
+    var bank = ST.bank;
+    if (!(bank.bin && bank.account)) return '<p class="notice">' + esc(t("payPending", { m: t("pmS_bank") })) + "</p>";
+    var bankName = (BANKS.filter(function (b) { return b[0] === bank.bin; })[0] || [0, bank.bin])[1];
+    var qr = qrSVG(vietQR(bank.bin, bank.account, T.due, payMemo()));
+    h += '<div' + (qr ? ' class="pay"' : "") + '>' + (qr ? '<div class="qrbox">' + qr + "<small>VIETQR · NAPAS 247</small></div>" : "") +
+      '<div><p class="hint">' + esc(t("payScan")) + '</p><dl class="kv">' +
+        kv(t("bankL"), bankName, false) + kv(t("acctL"), bank.account, true) + kv(t("acctNameL"), bank.name, false) +
+        kv(t(T.shipQuoted ? "amountItemsL" : "amountL"), money(T.due), String(T.due)) + kv(t("memoL"), payMemo(), true) +
+      "</dl></div></div>";
+    if (bank.name) h += '<p class="notice">' + esc(t("checkName", { n: bank.name })) + "</p>";
+    return h;
+  }
+  var acct = ST.pay && ST.pay[m];
+  if (!acct) return '<p class="notice">' + esc(t("payPending", { m: t("pmS_" + m) })) + "</p>";
+  var usd = usdText(T.due);
+  h += '<dl class="kv">' + kv(t(m === "paypal" ? "ppL" : "zlL"), acct, true) + kv(t(T.shipQuoted ? "amountItemsL" : "amountL"), usd ? "≈ " + usd : money(T.due), false) + "</dl>";
+  if (usd) h += '<p class="hint">' + esc(t("usdNote", { r: (Number(ST.usdRate) || 0).toLocaleString(lang === "vi" ? "vi-VN" : "en-US") })) + "</p>";
+  if (m === "zelle") h += '<p class="hint">' + esc(t("zelleNote")) + "</p>";
+  if (co.name.trim()) h += '<p class="hint">' + esc(t("payNote", { n: co.name.trim() })) + "</p>";
+  return h;
+}
 function renderCheckout() {
   stepper();
-  var T = totals(), body = $("#coBody"), h = "";
+  var T = totals(), body = $("#coBody"), h = "", intl = co.delivery === "intl";
   if (co.step === 1) {
     h += '<form class="form" id="coForm" novalidate>' +
-      '<div class="row2"><div class="field"><label for="co-name">' + esc(t("cName")) + '</label><input id="co-name" autocomplete="name" value="' + esc(co.name) + '"><p class="err" id="err-name" hidden></p></div>' +
-      '<div class="field"><label for="co-phone">' + esc(t("cPhone")) + '</label><input id="co-phone" type="tel" inputmode="tel" autocomplete="tel" value="' + esc(co.phone) + '"><p class="err" id="err-phone" hidden></p></div></div>' +
-      '<div class="field"><label for="co-ig">' + esc(t("cIG")) + '</label><input id="co-ig" autocomplete="off" placeholder="@" value="' + esc(co.ig) + '"></div>' +
       '<fieldset class="opts"><legend>' + esc(t("cDelivery")) + "</legend>" +
       DELIVERY.map(function (d) {
         return '<label class="opt"><input type="radio" name="co-delivery" id="co-d-' + d + '" value="' + d + '"' + (co.delivery === d ? " checked" : "") + "><span>" + esc(t("d_" + d)) + '</span><span class="fee">' + esc(quotedDelivery(d) ? t("quoted") : t("free")) + "</span></label>";
       }).join("") + "</fieldset>" +
-      '<div class="field" id="addrField"' + (co.delivery === "pickup" ? " hidden" : "") + '><label for="co-address">' + esc(t("cAddress")) + '</label><input id="co-address" autocomplete="street-address" value="' + esc(co.address) + '"><p class="err" id="err-address" hidden></p></div>' +
+      '<p class="notice" id="intlNote"' + (intl ? "" : " hidden") + ">" + esc(t("intlNote")) + "</p>" +
+      '<div class="row2"><div class="field"><label for="co-name">' + esc(t("cName")) + '</label><input id="co-name" autocomplete="name" value="' + esc(co.name) + '"><p class="err" id="err-name" hidden></p></div>' +
+      '<div class="field"><label for="co-phone" id="phoneLbl">' + esc(t(intl ? "cPhoneIntl" : "cPhone")) + '</label><input id="co-phone" type="tel" inputmode="tel" autocomplete="tel" value="' + esc(co.phone) + '"><p class="err" id="err-phone" hidden></p></div></div>' +
+      '<div class="field" id="addrField"' + (co.delivery === "pickup" ? " hidden" : "") + '><label for="co-address" id="addrLbl">' + esc(t(intl ? "cAddressIntl" : "cAddress")) + '</label><input id="co-address" autocomplete="street-address" value="' + esc(co.address) + '"><p class="err" id="err-address" hidden></p></div>' +
       '<div class="field"><label for="co-note">' + esc(t("cNote")) + '</label><input id="co-note" autocomplete="off" value="' + esc(co.note) + '"></div>' +
       '<div class="sum" id="coSum">' + sumLines(T) + "</div>" +
       '<p class="hint" id="coSumNote"></p>' +
-      '<label class="chkline"><input type="checkbox" id="co-consent"' + (co.consent ? " checked" : "") + "><span>" + esc(t("cConsent")) + "</span></label>" +
-      '<p class="err" id="err-consent" hidden></p>' +
-      '<label class="chkline"><input type="checkbox" id="co-remember"' + (co.remember ? " checked" : "") + "><span>" + esc(t("cRemember")) + "</span></label>" +
+      '<p class="hint">' + esc(t("cPriv")) + "</p>" +
       '<div class="co-actions"><span></span><button type="submit" class="btn solid">' + esc(t("next")) + "</button></div></form>";
     body.innerHTML = h;
     updateSumNote(T);
-  } else if (co.step === 2) {
-    if (!co.code) co.code = newCode();
-    var bank = ST.bank, hasBank = bank.bin && bank.account;
-    var bankName = (BANKS.filter(function (b) { return b[0] === bank.bin; })[0] || [0, bank.bin])[1];
-    h += '<div class="form"><div><p class="label">' + esc(t("orderCode")) + '</p><p class="code">' + esc(co.code) + "</p></div>";
-    if (hasBank) {
-      var qr = qrSVG(vietQR(bank.bin, bank.account, T.due, co.code));
-      h += '<div class="pay">' + (qr ? '<div class="qrbox">' + qr + "<small>VIETQR · NAPAS 247</small></div>" : "") +
-        '<div><p class="hint">' + esc(t("payScan")) + '</p><dl class="kv">' +
-          kv(t("bankL"), bankName, false) + kv(t("acctL"), bank.account, true) + kv(t("acctNameL"), bank.name, false) +
-          kv(t("amountL"), money(T.due), String(T.due)) + kv(t("memoL"), co.code, true) +
-        "</dl></div></div>";
-      if (bank.name) h += '<p class="notice">' + esc(t("checkName", { n: bank.name })) + "</p>";
-    } else {
-      h += '<div class="sum">' + sumLines(T) + '</div><p class="notice">' + esc(t("bankPending", { a: money(T.due) })) + "</p>";
-    }
-    notesFor(T).forEach(function (n) { h += '<p class="hint">' + esc(n) + "</p>"; });
-    h += '<div class="co-actions"><button type="button" class="btn" data-co="back">' + esc(t("back")) + '</button><button type="button" class="btn solid" data-co="next">' + esc(t(hasBank ? "paidNext" : "next2")) + "</button></div></div>";
-    body.innerHTML = h;
   } else {
     var handle = T.stock.length ? ST.ig.stock : ST.ig.order, ext = ' target="_blank" rel="noopener noreferrer"';
-    h += '<div class="form"><h3 class="sendt">' + esc(t("sendT")) + '</h3><p class="hint">' + esc(t("sendD", { h: handle, ch: sendCh(handle) })) + "</p>" +
-      '<pre class="msg" id="sumText" tabindex="0">' + esc(orderSummary(T)) + "</pre>" +
-      '<button type="button" class="btn" data-co="copy">' + esc(t("copySummary")) + "</button>" +
-      '<a class="btn solid" data-co="ig" href="https://ig.me/m/' + encodeURIComponent(handle) + '"' + ext + ">" + esc(t("openIG", { h: handle })) + "</a>" +
-      (ST.whatsapp ? '<a class="btn" data-co="wa" href="' + waURL(ST.whatsapp) + '"' + ext + ">" + esc(t("openWA")) + "</a>" : "") +
-      (ST.zalo ? '<a class="btn" data-co="zalo" href="' + zaloURL(ST.zalo) + '"' + ext + ">" + esc(t("openZalo")) + "</a>" : "") +
+    var order = payOrder();
+    if (order.indexOf(co.pay) < 0) co.pay = order[0];
+    h += '<div class="form"><div class="sum">' + sumLines(T) + "</div>";
+    notesFor(T).forEach(function (n) { h += '<p class="hint">' + esc(n) + "</p>"; });
+    h += '<fieldset class="opts"><legend>' + esc(t("payL")) + "</legend>" + order.map(function (m) {
+      return '<label class="opt"><input type="radio" name="co-pay" value="' + m + '"' + (co.pay === m ? " checked" : "") + "><span>" + esc(t("pm_" + m)) + "</span></label>";
+    }).join("") + "</fieldset>" + payBox(T) +
+      '<h3 class="sendt">' + esc(t("sendT")) + '</h3><p class="hint">' + esc(t(T.shipQuoted ? "sendDQ" : "sendD", { h: handle })) + "</p>" +
+      '<a class="btn solid wide" data-co="send" href="https://ig.me/m/' + encodeURIComponent(handle) + '"' + ext + ">" + esc(t("sendBtn")) + "</a>" +
+      '<details class="sumprev"><summary>' + esc(t("seeMsg")) + '</summary><pre class="msg" id="sumText" tabindex="0">' + esc(orderSummary(T)) + '</pre><button type="button" class="btn" data-co="copy">' + esc(t("copyAgain")) + "</button></details>" +
       '<div class="co-actions"><button type="button" class="btn" data-co="back">' + esc(t("back")) + '</button><button type="button" class="btn" data-co="done">' + esc(t("doneClear")) + "</button></div></div>";
     body.innerHTML = h;
   }
@@ -1671,7 +1730,7 @@ function updateSumNote(T) {
   el.hidden = !notes.length;
 }
 function orderSummary(T) {
-  var L = [t("sumHello", { c: co.code })];
+  var L = [t("sumHello")];
   T.items.forEach(function (p, i) {
     L.push((i + 1) + ". " + p.brand + " – " + p.name + (p.size ? " (" + t("size") + " " + fmtSize(p.size) + ")" : "") + " – " + money(p.price) + (p.type === "preorder" ? " [" + t("badgePre") + "]" : ""));
   });
@@ -1679,14 +1738,14 @@ function orderSummary(T) {
   if (T.stock.length) L.push(t("lStock") + ": " + money(T.stockSub));
   L.push(t("lShip") + ": " + (T.shipQuoted ? t("quoted") : t("free")));
   if (T.pre.length) L.push(t("lDeposit") + ": " + money(T.deposit));
-  L.push(t("lDue") + ": " + money(T.due));
+  var usd = co.pay !== "bank" ? usdText(T.due) : "";
+  L.push(t(T.shipQuoted ? "amountItemsL" : "lDue") + ": " + money(T.due) + (usd ? " (≈ " + usd + ")" : ""));
   if (T.pre.length && T.later > 0) L.push(t("lLater") + ": " + money(T.later));
-  L.push(t("memoL") + ": " + co.code);
+  L.push(t("sumPay") + ": " + t("pm_" + co.pay));
   L.push("");
-  L.push(t("cDelivery") + ": " + t("d_" + co.delivery));
+  L.push(t("sumDelivery") + ": " + t("d_" + co.delivery));
   L.push(t("sumName") + ": " + co.name);
   L.push(t("sumPhone") + ": " + co.phone);
-  if (co.ig) L.push(t("sumIG") + ": " + co.ig);
   if (co.delivery !== "pickup" && co.address) L.push(t("sumAddr") + ": " + co.address);
   if (co.note) L.push(t("sumNote") + ": " + co.note);
   return L.join("\n");
@@ -1697,13 +1756,12 @@ function validateStep1() {
   setErr("name", co.name.trim() ? "" : t("errName"));
   setErr("phone", co.phone.replace(/\D/g, "").length >= 8 ? "" : t("errPhone"));
   setErr("address", co.delivery === "pickup" || co.address.trim() ? "" : t("errAddress"));
-  setErr("consent", co.consent ? "" : t("errConsent"));
   if (!ok) { var first = $("#coForm .err:not([hidden])"); if (first) { var inp = first.parentNode.querySelector("input"); if (inp) inp.focus(); } }
   return ok;
 }
 function openCheckout() {
   if (!bagItems().length) return;
-  co.step = 1; co.code = "";
+  co.step = 1;
   closeDlg("bagDlg"); renderCheckout(); openDlg("coDlg");
 }
 
@@ -1956,9 +2014,9 @@ document.addEventListener("click", function (e) {
   if (el.id === "toCheckout") { openCheckout(); return; }
   if ((v = el.getAttribute("data-co"))) {
     if (v === "back") { co.step = Math.max(1, co.step - 1); renderCheckout(); }
-    else if (v === "next") { co.step = 3; renderCheckout(); }
-    else if (v === "copy" || v === "ig" || v === "wa" || v === "zalo") copyText($("#sumText").textContent, $("#sumText"));
-    else if (v === "done") { cart = []; saveCart(); co.code = ""; co.consent = false; closeDlg("coDlg"); renderBag(); refreshAddButtons(); toast(t("toastCleared")); }
+    else if (v === "send") copyText(orderSummary(totals()), null, t("toastSent"));   /* the link then opens the Instagram chat; the copy must happen in this same tap */
+    else if (v === "copy") copyText(orderSummary(totals()), $("#sumText"));
+    else if (v === "done") { cart = []; saveCart(); co.step = 1; closeDlg("coDlg"); renderBag(); refreshAddButtons(); toast(t("toastCleared")); }
     return;
   }
   if (el.id === "adminBtn") { A.draft = null; A.confirm = null; renderAdmin(); openDlg("adminDlg"); return; }
@@ -1995,7 +2053,6 @@ document.addEventListener("input", function (e) {
   var id = e.target.id;
   if (id === "co-name") co.name = e.target.value;
   else if (id === "co-phone") co.phone = e.target.value;
-  else if (id === "co-ig") co.ig = e.target.value;
   else if (id === "co-address") co.address = e.target.value;
   else if (id === "co-note") co.note = e.target.value;
 });
@@ -2005,10 +2062,13 @@ document.addEventListener("change", function (e) {
   if (el.id === "sortSel") { filter.sort = el.value; renderGrid(); return; }
   if (el.id === "brandSel") { filter.brand = el.value; renderGrid(); return; }
   if (el.id === "pf-cat") { readDraftFields(); A.draft.kind = ""; renderAdmin(); return; }
-  if (el.id === "co-consent") { co.consent = el.checked; if (el.checked) $("#err-consent").hidden = true; return; }
-  if (el.id === "co-remember") { co.remember = el.checked; if (!el.checked) LS.del("dd-details"); return; }
+  if (el.name === "co-pay") { co.pay = el.value; renderCheckout(); var pr = $('input[name="co-pay"]:checked'); if (pr) pr.focus(); return; }
   if (el.name === "co-delivery") {
-    co.delivery = el.value; $("#addrField").hidden = co.delivery === "pickup";
+    co.delivery = el.value; co.pay = ""; $("#addrField").hidden = co.delivery === "pickup";
+    var intl = co.delivery === "intl";
+    $("#intlNote").hidden = !intl;
+    $("#phoneLbl").textContent = t(intl ? "cPhoneIntl" : "cPhone");
+    $("#addrLbl").textContent = t(intl ? "cAddressIntl" : "cAddress");
     var T = totals(); $("#coSum").innerHTML = sumLines(T); updateSumNote(T); return;
   }
   if (el.hasAttribute("data-sold")) { var p = byId(el.getAttribute("data-sold")); if (p) { p.sold = el.checked; markChanged(); setAdStatus(); } return; }
@@ -2050,7 +2110,7 @@ document.addEventListener("submit", function (e) {
   var f = e.target;
   if (f.id === "coForm") {
     if (!validateStep1()) return;
-    saveDetails(); co.step = 2; renderCheckout(); return;
+    co.step = 2; renderCheckout(); return;
   }
   if (f.id === "pForm") {
     readDraftFields();
