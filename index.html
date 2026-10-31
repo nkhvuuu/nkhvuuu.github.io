@@ -803,6 +803,7 @@ var BANKS = [
 /* ---------- strings ---------- */
 var I18N = {
 en: {
+  bankDetails: "Bank account details",
   errContact: "Enter at least one: phone, Zalo or WhatsApp number.",
   cWa: "WhatsApp number",
   cZalo: "Zalo number",
@@ -955,6 +956,7 @@ en: {
   adFeedNeedImg: "Choose at least one photo first.", adFeedNeedUrl: "Paste the link of an Instagram post.", adFeedEmpty: "No posts yet, so the site shows quiet placeholder tiles that link to @{h}.", adFeedAdded: "Added. Publish to put it live.", adFeedCount: "{n} of {m} posts.", adFeedPhotos: "{n} photos"
 },
 vi: {
+  bankDetails: "Thông tin tài khoản ngân hàng",
   errContact: "Bạn nhập ít nhất một trong ba: số điện thoại, Zalo hoặc WhatsApp.",
   cWa: "Số WhatsApp",
   cZalo: "Số Zalo",
@@ -1780,10 +1782,10 @@ function payBox(T) {
     var qr = qrSVG(vietQR(bank.bin, bank.account, T.due, payMemo()));
     h += '<div' + (qr ? ' class="pay"' : "") + '>' + (qr ? '<div class="qrbox">' + qr + "<small>VIETQR · NAPAS 247</small></div>" : "") +
       '<div><p class="hint">' + esc(t("payScan")) + '</p><dl class="kv">' +
-        kv(t("bankL"), bankName, false) + kv(t("acctL"), bank.account, true) + kv(t("acctNameL"), bank.name, false) +
         kv(t(T.shipQuoted ? "amountItemsL" : "amountL"), money(T.due), String(T.due)) + kv(t("memoL"), payMemo(), true) +
-      "</dl></div></div>";
-    if (bank.name) h += '<p class="notice">' + esc(t("checkName", { n: bank.name })) + "</p>";
+      "</dl></div></div>" +
+      '<details class="sumprev"><summary>' + esc(t("bankDetails")) + '</summary><dl class="kv">' + kv(t("bankL"), bankName, false) + kv(t("acctL"), bank.account, true) + kv(t("acctNameL"), bank.name, false) + "</dl>" +
+      (bank.name ? '<p class="hint">' + esc(t("checkName", { n: bank.name })) + "</p>" : "") + "</details>";
     return h;
   }
   var c = usdCalc(T.due, m);
@@ -1831,14 +1833,14 @@ function renderCheckout() {
     if (order.indexOf(co.pay) < 0) co.pay = order[0];
     var igLink = '<a class="' + (co.failed ? "btn solid wide" : "lnk") + '" data-co="send" href="https://ig.me/m/' + encodeURIComponent(handle) + '"' + ext + ">" + esc(t(co.failed ? "sendBtn" : "orSendIG")) + "</a>";
     h += '<div class="form"><div class="sum">' + sumLines(T) + "</div>";
-    notesFor(T).forEach(function (n) { h += '<p class="hint">' + esc(n) + "</p>"; });
+    if (T.pre.length) h += '<p class="hint">' + esc(t("preShipLater")) + "</p>";
     h += '<fieldset class="opts"><legend>' + esc(t("payL")) + "</legend>" + order.map(function (m) {
       return '<label class="opt"><input type="radio" name="co-pay" value="' + m + '"' + (co.pay === m ? " checked" : "") + "><span>" + esc(t("pm_" + m)) + "</span></label>";
     }).join("") + "</fieldset>" + payBox(T);
     if (co.failed) h += '<p class="notice">' + esc(t("placeFail")) + "</p>" + igLink;
-    else h += '<p class="hint">' + esc(t(T.shipQuoted || co.pay !== "bank" ? "placeDQ" : "placeD")) + '</p><button type="button" class="btn solid wide" data-co="place"' + (co.busy ? " disabled" : "") + ">" + esc(t(co.busy ? "placing" : "placeBtn")) + "</button>" + igLink;
-    h += '<details class="sumprev"><summary>' + esc(t("seeMsg")) + '</summary><pre class="msg" id="sumText" tabindex="0">' + esc(orderSummary(T)) + '</pre><button type="button" class="btn" data-co="copy">' + esc(t("copyAgain")) + "</button></details>" +
-      '<div class="co-actions"><button type="button" class="btn" data-co="back">' + esc(t("back")) + '</button><span></span></div></div>';
+    else h += '<p class="hint">' + esc(t(T.shipQuoted || co.pay !== "bank" ? "placeDQ" : "placeD")) + '</p><button type="button" class="btn solid wide" data-co="place"' + (co.busy ? " disabled" : "") + ">" + esc(t(co.busy ? "placing" : "placeBtn")) + "</button>";
+    if (co.failed) h += '<details class="sumprev" open><summary>' + esc(t("seeMsg")) + '</summary><pre class="msg" id="sumText" tabindex="0">' + esc(orderSummary(T)) + '</pre><button type="button" class="btn" data-co="copy">' + esc(t("copyAgain")) + "</button></details>";
+    h += '<div class="co-actions"><button type="button" class="btn" data-co="back">' + esc(t("back")) + '</button><span></span></div></div>';
     body.innerHTML = h;
   } else {
     var hd = co.handle || ST.ig.order, extl = ' target="_blank" rel="noopener noreferrer"', viaIG = co.doneVia === "ig";
