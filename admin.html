@@ -19,7 +19,8 @@ textarea{min-height:76px}label{display:block;font-size:13px;color:var(--mute);ma
 .sold{background:var(--red);color:#fff;border-radius:99px;padding:1px 9px;font-size:12px;margin-left:6px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.grid2{grid-template-columns:1fr}}
 .photos{display:flex;gap:8px;flex-wrap:wrap}.ph{position:relative;width:96px;height:96px}.ph img{width:100%;height:100%;object-fit:cover;border-radius:8px}
-.ph button{position:absolute;top:2px;right:2px;padding:0 7px;border-radius:99px;background:#fff}.ph i{position:absolute;left:4px;bottom:4px;background:#000a;color:#fff;font-size:11px;font-style:normal;padding:0 6px;border-radius:4px}
+.ph{touch-action:manipulation;user-select:none;-webkit-user-select:none;cursor:grab}.ph img{-webkit-touch-callout:none;pointer-events:none}.ph.drag{opacity:.35}.ph .mv{position:absolute;bottom:3px;padding:2px 8px;font-size:15px;line-height:1.2;border-radius:6px;background:#fffd;border:1px solid var(--line)}.ph .mv.l{left:3px}.ph .mv.r{right:3px}.ph i{bottom:auto;top:4px}.photos+.hint{color:var(--mute);font-size:13px;margin-top:6px}.ghost{position:fixed;z-index:99;width:96px;height:96px;object-fit:cover;border-radius:8px;opacity:.85;pointer-events:none;box-shadow:0 6px 18px #0004}
+.ph button[data-a=rmphoto]{position:absolute;top:2px;right:2px;padding:0 7px;border-radius:99px;background:#fff}.ph i{position:absolute;left:4px;bottom:4px;background:#000a;color:#fff;font-size:11px;font-style:normal;padding:0 6px;border-radius:4px}
 .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
 .msg{padding:10px 14px;border-radius:8px;margin:10px 0;background:#fff;border:1px solid var(--line)}.msg.err{border-color:var(--red);color:var(--red)}
 .check{display:flex;gap:10px;align-items:center;margin-top:14px;font-size:16px;color:var(--ink)}.check input{width:22px;height:22px}
@@ -45,7 +46,7 @@ var T = {
     sIntl: "Thanh toán quốc tế", sPaypal: "Tài khoản PayPal (email hoặc link)", sZelle: "Zelle (email hoặc SĐT)", sRate: "Tỷ giá (số ₫ cho 1 USD)", sFee: "Phí cộng thêm vào giá để shop nhận đủ tiền", sPpPct: "PayPal: phí %", sPpFix: "PayPal: phí cố định (USD)", sZePct: "Zelle: phí %", sZeFix: "Zelle: phí cố định (USD)",
     sSave: "Lưu cài đặt", sSaved: "Đã lưu cài đặt. Web cập nhật sau vài giây.", sErr: "Chưa lưu được cài đặt. Bạn chạy file SQL mới trong Supabase trước nhé.", sDayN: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"], email: "Email", pass: "Mật khẩu", login: "Đăng nhập", logout: "Đăng xuất", bad: "Sai email hoặc mật khẩu.", notAdmin: "Tài khoản này chưa được sửa shop. Nhờ Vu thêm email của bạn.",
     products: "Sản phẩm", posts: "Bài Instagram", add: "Thêm sản phẩm", empty: "Chưa có gì.", sold: "Đã bán", edit: "Sửa", save: "Lưu", cancel: "Hủy", del: "Xóa", sure: "Xóa hẳn mục này?",
-    photos: "Ảnh (ảnh đầu là ảnh bìa, tối đa 20)", addPhoto: "Thêm ảnh", name: "Tên", brand: "Hãng", cat: "Loại", kind: "Kiểu (không bắt buộc)", price: "Giá (VND, để trống = hỏi giá)", size: "Size (giày: 37, 37.5, 38)", grade: "Tình trạng (từ 1 đến 10)", isSold: "Đã bán", noteEn: "Mô tả tiếng Anh", noteVi: "Mô tả tiếng Việt",
+    photos: "Ảnh (ảnh đầu là ảnh bìa, tối đa 20)", dragHint: "Kéo thả ảnh để đổi thứ tự (trên điện thoại: chạm giữ ảnh một chút rồi kéo). Ảnh đầu tiên là ảnh bìa.", addPhoto: "Thêm ảnh", name: "Tên", brand: "Hãng", cat: "Loại", kind: "Kiểu (không bắt buộc)", price: "Giá (VND, để trống = hỏi giá)", size: "Size (giày: 37, 37.5, 38)", grade: "Tình trạng (từ 1 đến 10)", isSold: "Đã bán", noteEn: "Mô tả tiếng Anh", noteVi: "Mô tả tiếng Việt",
     needName: "Bạn nhập tên nhé.", saved: "Đã lưu.", saving: "Đang lưu…", line: "Hàng chạy nào", lineVw: "Vivienne Westwood", lineAs: "Anna Sui", lineNone: "Chưa chọn (ẩn)", link: "Link bài Instagram", caption: "Chú thích (không bắt buộc)", date: "Ngày (không bắt buộc)", addPost: "Thêm bài", cover: "bìa",
     selAll: "Chọn tất cả", chosen: "Đã chọn {n}", clear: "Bỏ chọn", bulkEdit: "Sửa đã chọn", bulkDel: "Xóa đã chọn", bulkSure: "Xóa hẳn {n} mục đã chọn? Không thể hoàn tác (bạn có thể bấm Sao lưu trước).", bulkTitle: "Sửa {n} mục đã chọn", bulkHint: "Chỉ những ô bạn chọn hoặc nhập mới được đổi. Ô để trống thì giữ nguyên.", keep: "— giữ nguyên —", status: "Còn hàng / đã bán", inStock: "Còn hàng", apply: "Áp dụng", priceNew: "Giá mới (VND)", sizeNew: "Size mới", bulkDone: "Đã sửa {n} mục.", bulkDeleted: "Đã xóa {n} mục.",
     imp: "Nhập 47 sản phẩm từ website", impHelp: "Làm một lần: chép các sản phẩm và bài đang có trên website vào shop này, kèm ảnh.", impDone: "Xong: đã nhập {p} sản phẩm và {f} bài.", impNone: "Không đọc được sản phẩm của website.", uploading: "Đang tải ảnh…", fail: "Có lỗi: ", askPrice: "Hỏi giá" }
@@ -217,7 +218,7 @@ function productList() {
 }
 function opts(list, cur, none) { return (none ? '<option value="">' + none + "</option>" : "") + list.map(function (x) { return '<option' + (x === cur ? " selected" : "") + ">" + esc(x) + "</option>"; }).join(""); }
 function photoBox(imgs) {
-  return '<label>' + t("photos") + '</label><div class="photos">' + imgs.map(function (u, i) { return '<div class="ph"><img src="' + esc(u) + '" alt=""><button type="button" data-a="rmphoto" data-i="' + i + '">×</button>' + (i === 0 ? "<i>" + t("cover") + "</i>" : "") + "</div>"; }).join("") + "</div>" +
+  return '<label>' + t("photos") + '</label><div class="photos">' + imgs.map(function (u, i) { return '<div class="ph" data-i="' + i + '"><img src="' + esc(u) + '" alt=""><button type="button" data-a="rmphoto" data-i="' + i + '">×</button>' + (i === 0 ? "<i>" + t("cover") + "</i>" : "") + "</div>"; }).join("") + "</div>" + (imgs.length > 1 ? '<div class="hint">' + t("dragHint") + "</div>" : "") +
     (imgs.length < MAXPHOTOS ? '<div class="bar" style="margin-top:8px"><label class="btn" style="margin:0;color:var(--ink);font-size:16px">' + t("addPhoto") + '<input type="file" id="files" accept="image/*" multiple style="display:none"></label></div>' : "");
 }
 function productForm() {
@@ -267,6 +268,38 @@ function load() {
   return Promise.all([rest.list("products"), rest.list("posts"), rest.list("orders").then(function (x) { st.ordersErr = false; return x; }, function () { st.ordersErr = true; return []; }), api("/rest/v1/settings?select=data&id=eq.shop").then(function (x) { return x && x[0] ? x[0].data : null; }, function () { return null; })]).then(function (r) { st.products = r[0]; st.posts = r[1]; st.orders = r[2]; st.settings = r[3]; var hm = /^#order-(\d+)$/.exec(location.hash); if (hm && !st.hashDone) { view = "orders"; st.open = +hm[1]; st.hashDone = true; } var keep = {}; rowsOf().forEach(function (x) { if (st.sel[x.id]) keep[x.id] = true; }); st.sel = keep; if (!selIds().length) st.bulk = false; render(); });
 }
 function guard(p) { st.busy = true; return p.then(function (x) { st.busy = false; return x; }, function (e) { st.busy = false; say(t("fail") + (e.message || e), true); render(); throw e; }); }
+
+/* drag and drop to reorder photos: the other photos shift live while you drag. Mouse drags at once; touch needs a short press-and-hold so the page can still scroll */
+(function () {
+  var dg = null;
+  function stop(keep) { if (!dg) return; clearTimeout(dg.timer); if (dg.ghost) dg.ghost.remove(); dg.el.classList.remove("drag"); var d = dg; dg = null; if (!keep && d.on) render(); }
+  function start() { dg.on = true; dg.el.classList.add("drag"); var g = dg.el.querySelector("img").cloneNode(); g.className = "ghost"; document.body.appendChild(g); dg.ghost = g; if (navigator.vibrate) try { navigator.vibrate(15); } catch (e) {} mv(); }
+  function mv() {
+    dg.ghost.style.left = (dg.x - 48) + "px"; dg.ghost.style.top = (dg.y - 48) + "px";
+    var e = document.elementFromPoint(dg.x, dg.y), c = e && e.closest ? e.closest(".ph") : null; if (!c || c === dg.el || c.parentNode !== dg.el.parentNode) return;
+    var kids = Array.prototype.slice.call(dg.el.parentNode.children), before = kids.indexOf(c) < kids.indexOf(dg.el);
+    dg.el.parentNode.insertBefore(dg.el, before ? c : c.nextSibling);
+  }
+  document.addEventListener("pointerdown", function (ev) {
+    var el = ev.target.closest && ev.target.closest(".ph"); if (!el || ev.target.closest("button") || (ev.pointerType === "mouse" && ev.button !== 0)) return;
+    stop(true); dg = { el: el, x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY, touch: ev.pointerType !== "mouse", on: false };
+    if (dg.touch) dg.timer = setTimeout(function () { if (dg) start(); }, 300);
+  });
+  document.addEventListener("pointermove", function (ev) {
+    if (!dg) return; dg.x = ev.clientX; dg.y = ev.clientY;
+    if (!dg.on) { if (Math.abs(dg.x - dg.x0) + Math.abs(dg.y - dg.y0) > 8) { if (dg.touch) return stop(true); start(); } return; }
+    mv();
+  });
+  document.addEventListener("touchmove", function (ev) { if (dg && dg.on) ev.preventDefault(); }, { passive: false });
+  document.addEventListener("contextmenu", function (ev) { if (ev.target.closest && ev.target.closest(".ph")) ev.preventDefault(); });
+  document.addEventListener("pointerup", function () {
+    if (!dg) return; var d = dg, on = d.on, wrap = d.el.parentNode; stop(true); if (!on) return;
+    var f = document.querySelector("#pform,#qform"); if (f && st.draft) readForm(f, st.draft);
+    var l = st.draft.img || st.draft.imgs, order = Array.prototype.map.call(wrap.children, function (n) { return +n.dataset.i; });
+    var nl = order.map(function (i) { return l[i]; }); l.splice.apply(l, [0, l.length].concat(nl)); render();
+  });
+  document.addEventListener("pointercancel", function () { stop(); });
+})();
 
 document.addEventListener("click", function (ev) {
   var am = ev.target.closest("a[data-omsg]");
